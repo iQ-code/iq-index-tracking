@@ -17,7 +17,6 @@ externalDocs:
 servers:
   - url: https://www.inspiration-q.com/api
     description: Production server
-  
 
 tags:
   - name: iQ-Finance
@@ -26,6 +25,8 @@ tags:
 paths:
   /iq-finance/index-tracking:
     post:
+      security:
+          - ApiKeyAuth: []
       tags:
         - iQ-Finance
       summary: Create a new Index Tracking computation.
@@ -52,6 +53,8 @@ paths:
 
   /iq-finance/index-tracking/{indexTrackingComputationId}:
     get:
+      security:
+        - ApiKeyAuth: []
       tags:
         - iQ-Finance
       summary: Find Index Tracking computation by ID
@@ -78,6 +81,11 @@ paths:
 
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: Ocp-Apim-Subscription-Key
   schemas:
     ComputationResult:
       type: object
