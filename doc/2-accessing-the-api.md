@@ -1,11 +1,15 @@
-# 2.- Accessing the API
+# 2. Accessing the API
 
+## 2.1. Basic Usage with cURL
 
+To interact with the **Inspiration-Q Index Tracking API** using `curl`, use the following command:
 
-## 2.1.- Basic usage with curl
-
-```
-curl -X POST https://www.inspiration-q.com/api/v1/iq-finance/index-tracking -H "Content-Type: application/json" -H "Accept: application/json" -H "Ocp-Apim-Subscription-Key: <your-api-key>" -d '{
+```sh
+curl -X POST https://www.inspiration-q.com/api/v1/iq-finance/index-tracking \
+     -H "Content-Type: application/json" \
+     -H "Accept: application/json" \
+     -H "Ocp-Apim-Subscription-Key: <your-api-key>" \
+     -d '{
   "assets_covariance_matrix": [
     [3.571705619883564, -0.7955365555749586, 0.12557964034596986, 1.0639482728918976, -0.40191777016183283, 0.6863605725971405, -0.13949908918445247, 0.1711775516765147, 0.6755160399639315, 2.51293081246698],
     [-0.7955365555749586, 5.415520138923123, -2.0174005804761763, 0.030388266205496173, 2.550222403729447, 0.5643289518319003, -1.293304939459475, -0.5751123806041349, 3.594236909963808, 1.8956893890593007],
@@ -25,140 +29,63 @@ curl -X POST https://www.inspiration-q.com/api/v1/iq-finance/index-tracking -H "
 }'
 ```
 
-
-## 2.2.- A Postman collection
+## 2.2. A Postman Collection
 
 ### Overview
-In the `api` folder, we provide a **Postman collection** named **`Inspiration-Q_Index_Tracking_API.postman_collection.json`**. This collection contains predefined requests for interacting with the **Inspiration-Q Index Tracking API**.
 
-Using this collection, you can easily test API endpoints, send requests, and review responses without manually setting up each request.
+In the `api` folder, we provide a **Postman collection** named **`Inspiration-Q_Index_Tracking_API.postman_collection.json`**. This collection simplifies API testing and interaction.
 
 ### How to Use the Postman Collection
 
 #### 1. Install Postman
-If you haven't already, download and install **Postman**:
 - [Download Postman](https://www.postman.com/downloads/)
 
-#### 2. Import the Postman Collection
-Follow these steps to import the provided Postman collection:
+#### 2. Import the Collection
 1. Open **Postman**.
-2. Click on **File** → **Import** (or use the **Import** button in the top-left corner).
-3. Select **Upload Files** and browse to `api/Inspiration-Q_Index_Tracking_API.postman_collection.json`.
-4. Click **Open** to import the collection.
+2. Click **File** → **Import**.
+3. Select **Upload Files** and choose `api/Inspiration-Q_Index_Tracking_API.postman_collection.json`.
+4. Click **Open** to import.
 
 #### 3. Configure Environment Variables
-To simplify API requests, the collection uses **environment variables**. Before making requests, you need to set up these variables:
-
-1. Click on **Environments** in Postman.
-2. Create a new environment named `Inspiration-Q API`.
-3. Add the following variables:
+1. Click **Environments** in Postman.
+2. Create a new environment `Inspiration-Q API`.
+3. Add:
    - **baseUrl**: `https://www.inspiration-q.com/api/v1`
-   - **apiKey**: `<your-API-key>` (replace with your actual API key)
+   - **apiKey**: `<your-API-key>`
 4. Save the environment and select it before making requests.
 
 #### 4. Make API Requests
-Once the collection is imported and environment variables are set:
-- Expand the **`Inspiration-Q Index Tracking API`** collection.
-- Select an endpoint (e.g., **Create a new Index Tracking computation**).
+- Expand **`Inspiration-Q Index Tracking API`** collection.
+- Choose an endpoint (e.g., **Create a new Index Tracking computation**).
 - Click **Send** to execute the request.
-- Review the API response in the Postman interface.
 
-#### 5. Testing Different Requests
-The collection includes requests for:
-- **Creating an Index Tracking computation** (`POST /iq-finance/index-tracking`)
-- **Retrieving a computation by ID** (`GET /iq-finance/index-tracking/{indexTrackingComputationId}`)
-
-## 2.3.- Using Python without the SDK
-
-This guide explains how to use the Inspiration-Q Index Tracking API in Python. The provided Python script demonstrates how to:
-
-Create a new Index Tracking computation by sending a POST request.
-
-Retrieve the computation results using a GET request.
-
-Poll the API until the computation is completed.
+## 2.3. Using Python Without the SDK
 
 ### Prerequisites
-- Python 3 installed on your system.
-- The requests library installed (pip install requests).
-- An API key for Inspiration-Q (replace YOUR_API_KEY in the script).
+- **Python 3** installed.
+- **Requests library** (`pip install requests`).
+- **API key** for Inspiration-Q.
 
-### Python script
-You can find the code in the file `IndexTrackingNoSDK.py` provided inside the [Examples Folder](../examples/).
+### Python Script
+The script is available in `IndexTrackingNoSDK.py` inside the [Examples Folder](../examples/).
 
-```
+```python
 import requests
 import time
 
-# API Configuration
 BASE_URL = "https://www.inspiration-q.com/api/v1"
 API_KEY = "YOUR_API_KEY"
-HEADERS = {
-    "Content-Type": "application/json",
-    "Ocp-Apim-Subscription-Key": API_KEY
-}
+HEADERS = {"Content-Type": "application/json", "Ocp-Apim-Subscription-Key": API_KEY}
 
-# Define the payload for creating an index tracking computation
-payload = {
-    "description": "SP500 tracker, size=60",
-    "assets_covariance_matrix": [[1.23, 2.13], [3.13, 4.09]],
-    "index_assets_covariance_vector": [1.31, 33.541],
-    "asset_names": ["ticker_a", "ticker_b"],
-    "portfolio_size": 2,
-    "minimum_weight": 0.25,
-    "maximum_weight": 1.0,
-    "sum_of_portfolio_weights": 1.0,
-    "random_number_generator_seed": 1334
-}
+payload = {"description": "SP500 tracker", "portfolio_size": 2, "random_number_generator_seed": 1334}
 
-# Step 1: Create a new Index Tracking computation
 response = requests.post(f"{BASE_URL}/iq-finance/index-tracking", json=payload, headers=HEADERS)
-
 if response.status_code == 201:
-    computation_result = response.json()
-    computation_id = computation_result["computationId"]
-    print(f"Computation created successfully. ID: {computation_id}")
-else:
-    print(f"Error creating computation: {response.status_code} - {response.text}")
-    exit()
-
-# Step 2: Retrieve the computation results by ID
-print("Fetching computation results...")
-
-while True:
-    response = requests.get(f"{BASE_URL}/iq-finance/index-tracking/{computation_id}", headers=HEADERS)
-
-    if response.status_code == 200:
-        result = response.json()
-        print(f"Computation Status: {result['status']}")
-        
-        if result["status"] in ["Failed", "Ok"]:
-            print("Computation complete!")
-            print("Computation Details:", result)
-            break
-    elif response.status_code == 404:
-        print("Computation not found. Retrying...")
-    else:
-        print(f"Error fetching computation: {response.status_code} - {response.text}")
-        break
-
-    time.sleep(5)  # Wait before retrying
+    computation_id = response.json()["computationId"]
+    print(f"Computation ID: {computation_id}")
 ```
 
-### How It Works
-
-#### Step 1: Create an Index Tracking Computation
-- The script sends a POST request with the input data (covariance matrix, portfolio size, etc.).
-- If successful, the API returns a computation ID.
-
-#### Step 2: Poll the API for Results
-- The script sends a GET request to fetch the computation status using the computation ID.
-- If the status is Pending or Computing, it retries every 5 seconds.
-- When the status is Ok (Completed) or Failed, it prints the computation results.
-
 ### Notes
-
 - Replace `YOUR_API_KEY` with your actual API key.
-- Adjust the payload parameters as needed for different computations.
-- Increase or decrease the polling interval (time.sleep(5)) based on expected computation time.
-
+- Adjust payload parameters as needed.
+- Increase `time.sleep(5)` if needed for longer computations.
