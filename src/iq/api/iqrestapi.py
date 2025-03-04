@@ -3,13 +3,13 @@ import requests
 import time
 
 debug = False
-_base_url="https://localhost:5000"
+_base_url="https://www.inspiration-q.com/api/"
 _url_dict = {}
 _auth = {}
 
-def initialize_credentials(base_url, api_key):
-    set_base_url(base_url)
+def initialize_credentials(api_key):
     set_auth(_build_auth(api_key))
+    set_url_dict()
 
 def _build_auth(api_key):
     return {
@@ -17,9 +17,7 @@ def _build_auth(api_key):
     }
 
 
-def set_base_url(base_url):
-    global _base_url
-    _base_url = base_url.rstrip(r"\/ ")
+def set_url_dict():
     global _url_dict 
     _url_dict = _specialize(_base_url, _known_entry_points)
 
