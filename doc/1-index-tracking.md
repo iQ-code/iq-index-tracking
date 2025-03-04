@@ -29,9 +29,9 @@ These constraints aim to minimize costs when rebalancing a portfolio by consider
 - **Ticker rotation**: Limits the number of assets that can leave the portfolio in a rebalance, defined as `max_companies_rotation`.
 - **Turnover rotation**: Limits the weight of assets sold during rebalancing, defined as `max_sales_rotation`. Mathematically,
 
-  $$
-  \frac{1}{2} \sum_i |w_i(t) - w_i(t-1)| \leq \text{max sales rotation}.
-  $$
+$$
+\frac{1}{2} \sum_i |w_i(t) - w_i(t-1)| \leq \text{max sales rotation}.
+$$
 
 #### 2. Constraints for Weight Allocation
 - **`maximum_weight`** and **`minimum_weight`**: Define the maximum and minimum allocation weight of each asset in the portfolio. These values range from `0` to `1` (e.g., an 8% allocation is written as `0.08`).
