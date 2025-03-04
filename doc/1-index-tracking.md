@@ -29,6 +29,10 @@ In general, a portfolio manager must satisfy some restrictions when building a t
         \frac{1}{2}\sum_i |w_i(t) - w_i(t-1)| \leq max\ sales\ rotation.
     $$
 
+    $$
+        \frac{1}{2} \sum_i \left| w_i(t) - w_i(t-1) \right| \leq \text{max sales rotation}.
+    $$
+
 2. Constraints that define the weight allocation: the `maximum_weight` and `minimum_weight` constraints define the maximum and minimum allocation weight of an asset inside the tracker portfolio, respectively. These are given as 0 to 1 numbers. E.g. a 8% weight is given as 0.08.
 
 ## 1.2.- Index Tracking API
