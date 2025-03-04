@@ -11,6 +11,7 @@ def initialize_credentials(api_key):
     set_auth(_build_auth(api_key))
     set_url_dict()
 
+
 def _build_auth(api_key):
     return {
         "Ocp-Apim-Subscription-Key": api_key

@@ -32,10 +32,12 @@ For a deep dive, navigate to the [`doc/`](./doc/) directory.
 
 ## 📦 Installation
 
-To get started with the SDK, install it via `pip`:
+You can find all the details about the installation in **[Index Tracking SDK](doc/3-index-tracking-sdk.md)**.
+
+Nevertheless, the fastest way to get started with the SDK is install it via `pip`:
 
 ```bash
-pip install iq-index-tracking
+pip install .
 ```
 
 ## 📚 Resources & Support
