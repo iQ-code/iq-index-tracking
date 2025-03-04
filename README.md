@@ -20,13 +20,30 @@ For a deep dive, navigate to the [`doc/`](./doc/) directory.
 
 ---
 
+## 📂 API Resources
+
+Inside the `API/` folder, you will find:
+
+- **[Postman Collection](api/Inspiration-Q_Index_Tracking_API.postman_collection.json):** A set of predefined API requests that can be imported into [Postman](https://www.postman.com/) for quick and easy testing of the API.
+- **[Open API Definition](api/iq-index-tracking.yaml):** A structured file that describes the API endpoints, request/response formats, and authentication methods. You can use this file to visualize and test the API in tools like [Swagger UI](https://editor.swagger.io/) or integrate it into your own development workflow.
+
+These resources are designed to help developers quickly understand and interact with the Index Tracking API.
+
+---
+
+## 🆕 For Absolute Beginners
+
+If you're new to coding and not familiar with **Git, Python, or Conda**, don't worry! You can find a dedicated **prerequisites** file inside the `doc/` folder that will guide you through the basics you need to get started.
+
+---
+
 ## 🔧 Features & Tools
 
 - ✅ **Comprehensive Index Tracking explanation**
 - ✅ **API details and usage**
 - ✅ **SDK for Python**  
 - ✅ **Web interface guide**  
-- ✅ **Tools to calculate the covariance matrix**  
+- ✅ **Tools to calculate the covariance and quadratic distance matrixes**  
 
 ---
 
@@ -48,4 +65,3 @@ If you need help, here are some useful resources:
 - **🌐 Official Website:** [Inspiration-Q](https://www.inspiration-q.com)  
 - **🐙 GitHub Repository:** [iq-index-tracking on GitHub](https://github.com/iQ-index-tracking)  
 - **✉️ Contact Support:** For any inquiries, email us at [support@inspiration-q.com](mailto:support@inspiration-q.com).  
-
