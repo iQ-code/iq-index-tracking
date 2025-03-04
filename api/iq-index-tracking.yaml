@@ -15,7 +15,7 @@ externalDocs:
   url: https://www.inspiration-q.com/
 
 servers:
-  - url: https://www.inspiration-q.com/api
+  - url: https://www.inspiration-q.com/api/v1
     description: Production server
 
 tags:
