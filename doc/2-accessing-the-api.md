@@ -49,7 +49,7 @@ If the Index Tracking computation have been computed, you will obtain:
 
 If it is still running the calculus, you will get:
 ```sh
-{"computationId": "f03efc3c-cd8f-4341-a84e-000caa380f89","status": "Computing","computationTimeInSeconds": 63876256052.5542,"computationStartTimeUtc":"0001-01-01T00:00:00"}
+{"computationId": "a3984c72-3ae9-4bdf-adee-005b65c1bc9e","status": "Computing","computationStoreTimeUtc": "2025-03-04T12:34:56.8317536Z"}
 ```
 
 
