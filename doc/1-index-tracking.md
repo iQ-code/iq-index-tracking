@@ -1,103 +1,106 @@
-# 1.- Index Tracking
+# 1. Index Tracking
 
-## 1.1.- The index tracking problem
+## 1.1. The Index Tracking Problem
 
-The index tracking problem consists on selecting a portfolio of $k$ assets from a benchmark index such that the returns of the portfolio track the returns of the index as close as possible. This closeness of the returns during a specific time window is measured by the tracking error, defined as the standard deviation of the difference between the returns of the index and the portfolio 
+The **index tracking problem** involves selecting a portfolio of $k$ assets from a benchmark index such that the portfolio's returns closely track the returns of the index. This closeness is measured using the **tracking error (TE)**, which is defined as the standard deviation of the difference between the returns of the index and the portfolio:
 
 $$
 \mathrm{TE}^2 = \textrm{Var}\left[r_I(t) - r_p(t)\right],
 $$
 
-with $r_I(t),r_p(t)$ the returns of the index and the portfolio, respectively, during the time window. 
+where $r_I(t)$ and $r_p(t)$ represent the returns of the index and portfolio, respectively, over a given time window.
 
-We define a tracker portfolio by a vector of weights $\vec{\omega}$, whose elements $\omega_i$ define the allocation weight of asset $i$ inside the portfolio. Using this notation, the TE is written as
-
-$$\textrm{TE}^2 = \sigma_I^2 - 2\, \vec{\omega}\,\vec{g} + \vec{\omega}\,\sigma\,\vec{\omega},$$
-
-with $\sigma_I^2$ the variance of the index' returns, $\vec{g}$ the vector of covariance between the assets' and index returns, and $\sigma$ the covariance matrix of the assets' returns.
-
-In general, a portfolio manager must satisfy some restrictions when building a tracker portfolio and at the same time the manager should try to reduce the transaction costs. In iQ-Finance we provide a series of constraints that apply both restrictions:
-
-1. Constraints that reduce the transaction costs: these constraints aim to reduce the transaction costs when we rebalance a portfolio. They use a previous portfolio - `previous_portfolio` in the API - from which they define two rotation constraints
-
-    * Ticker rotation: the number of assets that leaves the portfolio at one rebalance. It can be set to be below a maximum number, which is defined as `max_companies_rotation` in the API.
-
-    * Turnover rotation: the weight of the assets that is sold from the portfolio at one rebalance. It can be set to be below a maximum number, which is defined as `max_sales_rotation` in the API. Its mathematical definition is 
-    
+A **tracker portfolio** is represented by a vector of weights $\vec{\omega}$, where each element $\omega_i$ denotes the allocation weight of asset $i$ in the portfolio. Using this notation, the **tracking error** can be rewritten as:
 
 $$
-\frac{1}{2}\sum_i |w_i(t) - w_i(t-1)| \leq max\ sales\ rotation.
+\textrm{TE}^2 = \sigma_I^2 - 2 \vec{\omega}\,\vec{g} + \vec{\omega}\,\sigma\,\vec{\omega},
 $$
 
-2. Constraints that define the weight allocation: the `maximum_weight` and `minimum_weight` constraints define the maximum and minimum allocation weight of an asset inside the tracker portfolio, respectively. These are given as 0 to 1 numbers. E.g. a 8% weight is given as 0.08.
+where:
+- $\sigma_I^2$ is the variance of the index's returns,
+- $\vec{g}$ is the vector of covariances between asset returns and index returns,
+- $\sigma$ is the covariance matrix of asset returns.
 
-## 1.2.- Index Tracking API
+### Constraints in Index Tracking
+A portfolio manager must comply with specific constraints while constructing a tracker portfolio, considering both **transaction cost reduction** and **weight allocation** constraints. **iQ-Finance** provides the following constraints:
 
-The **Inspiration-Q Index Tracking API** provides endpoints to create and track index computation processes for portfolio management. It allows users to define a financial index tracking computation, monitor its progress, and retrieve results upon completion.
+#### 1. Constraints for Reducing Transaction Costs
+These constraints aim to minimize costs when rebalancing a portfolio by considering the previous portfolio (`previous_portfolio` in the API):
+- **Ticker rotation**: Limits the number of assets that can leave the portfolio in a rebalance, defined as `max_companies_rotation`.
+- **Turnover rotation**: Limits the weight of assets sold during rebalancing, defined as `max_sales_rotation`. Mathematically,
 
-It is exposed in the following URL:
+  $$
+  \frac{1}{2} \sum_i |w_i(t) - w_i(t-1)| \leq \text{max sales rotation}.
+  $$
+
+#### 2. Constraints for Weight Allocation
+- **`maximum_weight`** and **`minimum_weight`**: Define the maximum and minimum allocation weight of each asset in the portfolio. These values range from `0` to `1` (e.g., an 8% allocation is written as `0.08`).
+
+---
+
+## 1.2. Index Tracking API
+
+The **Inspiration-Q Index Tracking API** enables users to create and monitor index tracking computations for portfolio management. It is available at:
 
 ```
 https://www.inspiration-q.com/api/v1/iq-finance/index-tracking
 ```
 
-A full explanation of the usage of the API can be found in **[Accessing the API](doc/2-accessing-the-api.md)**. Besides that, here you can find an explanation of the data that the API needs: the input and the output obtained.
+For detailed usage instructions, refer to **[Accessing the API](doc/2-accessing-the-api.md)**. Below is an overview of the API's input and output data.
 
-### An overview of the input and the output
+### Overview of API Input and Output
 
-The Index Tracking API is designed to construct an optimal portfolio that closely replicates the performance of a given index while adhering to various constraints and optimization criteria. This API enables users to provide detailed input parameters, including asset covariance data, portfolio constraints, and sectorial restrictions, to generate an optimized portfolio composition.
+The API constructs an optimized portfolio that tracks a benchmark index while adhering to defined constraints. The optimization process minimizes the **tracking error** between the portfolio and index. Users provide input parameters (such as covariance data and constraints), and the API returns results detailing the optimized portfolio composition.
 
-The computation process involves solving a mathematical optimization problem that minimizes the tracking error between the constructed portfolio and the target index. Once a request is submitted, the API returns a structured response detailing the computation's status, results, and associated metadata.
+### Input Parameters: `IndexTracking`
 
-The API accepts a structured set of input parameters that define the characteristics and constraints of the portfolio optimization problem. 
+| Field Name | Type | Description |
+|------------|------|-------------|
+| `description` | string | Brief description of the portfolio. |
+| `assets_covariance_matrix` | array | Covariance matrix of asset returns. |
+| `index_assets_covariance_vector` | array | Covariance vector between asset and index returns. |
+| `asset_names` | array | List of asset names or identifiers. |
+| `portfolio_size` | integer | Number of assets in the portfolio (1-2047). |
+| `minimum_weight` | number (optional) | Minimum weight per asset (default: `0`). |
+| `maximum_weight` | number (optional) | Maximum weight per asset (default: `1`). |
+| `linear_constraints_matrix` | array (optional) | Matrix of linear constraints. |
+| `lower_bounds_vector` | array (optional) | Lower bounds for constraints. |
+| `upper_bounds_vector` | array (optional) | Upper bounds for constraints. |
+| `previous_portfolio` | object (optional) | Mapping of asset weights in the previous portfolio. |
+| `max_companies_rotation` | integer (optional) | Max number of assets changing from the previous portfolio. |
+| `max_sales_rotation` | number (optional) | Maximum allowed turnover percentage. |
+| `sectorial_weights` | object (optional) | Sector weight distribution for the portfolio. |
+| `sectorial_distribution` | object (optional) | Asset-to-sector mapping. |
+| `sectorial_weight_tolerance` | number (optional) | Allowed deviation from sector weight constraints. |
+| `sum_of_portfolio_weights` | number (optional) | Expected total weight of portfolio assets. |
+| `random_number_generator_seed` | integer (optional) | Seed for the random number generator. |
 
-#### Input parameters of an Index Tracking computation: IndexTracking
-| Field name | Type | Description |
-|--------|------|-------------|
-| description | string | A brief description of the portfolio. |
-| assets_covariance_matrix | array | Covariance matrix of assets. |
-| index_assets_covariance_vector | array | Covariance vector between assets and index. |
-| asset_names | array | Names or identifiers of assets. |
-| portfolio_size | integer | Number of assets in the portfolio (1-2047). |
-| minimum_weight | number (optional) | Minimum weight for each asset (default: 0). |
-| maximum_weight | number (optional) | Maximum weight for each asset (default: 1). |
-| linear_constraints_matrix | array (optional) | Linear constraints matrix. |
-| lower_bounds_vector | array (optional) | Lower bounds for constraints. |
-| upper_bounds_vector | array (optional) | Upper bounds for constraints. |
-| previous_portfolio | object (optional) | Asset-weight map for previous portfolio. |
-| max_companies_rotation | integer (optional) | Max assets changing from previous portfolio. |
-| max_sales_rotation | number (optional) | Max sell percentage from previous portfolio. |
-| sectorial_weights | object (optional) | Sector-weight distribution for portfolio. |
-| sectorial_distribution | object (optional) | Asset-to-sector mapping. |
-| sectorial_weight_tolerance | number (optional) | Maximum deviation from sectorial weights. |
-| sum_of_portfolio_weights | number (optional) | Expected sum of output weights. |
-| random_number_generator_seed | integer (optional) | Seed for random number generator. |
-
-#### Output parameters: ComputationResult
-Upon submitting an optimization request, the API returns a response containing details about the computation's execution and results
+### Output Parameters: `ComputationResult`
 
 | Field | Type | Description |
 |--------|------|-------------|
-| computationId | string | Identifier of the computation. |
-| type | string | Type of computation launched. |
-| description | string | Description of the computation use case. |
-| status | string | Computation status: Pending, Computing, Failed, Ok. |
-| progress | integer | Progress percentage of the computation. |
-| computationTime | number | Time spent in computation (seconds). |
-| computationStartTime | string (date-time) | Start time of computation. |
-| computationStoreTime | string (date-time) | Time when computation was stored. |
-| solution | array (number) | Optimal solution found. |
-| named_solution | object | Solution mapped to identifiers. |
-| info | number | Algorithm status code. 0 = No issues. |
-| cost | number (optional) | Minimum value of cost function. |
-| weights | array (number) (optional) | Weights of the solution. |
+| `computationId` | string | Unique identifier for the computation. |
+| `type` | string | Type of computation performed. |
+| `description` | string | Description of the computation. |
+| `status` | string | Current computation status (`Pending`, `Computing`, `Failed`, `Ok`). |
+| `progress` | integer | Percentage progress of the computation. |
+| `computationTime` | number | Time taken for computation (in seconds). |
+| `computationStartTime` | string (date-time) | Start time of computation. |
+| `computationStoreTime` | string (date-time) | Time when computation was stored. |
+| `solution` | array | Optimized portfolio weights. |
+| `named_solution` | object | Solution mapped to asset names. |
+| `info` | number | Solver status code (`0` = No issues). |
+| `cost` | number (optional) | Minimum cost function value. |
+| `weights` | array (optional) | Final asset weights. |
 
-#### The first output: the Index Tracking is being computed
-After submitting a request with the specified input parameters, the Index Tracking API begins processing the optimization. The API responds immediately with an initial response containing a computation ID and a status indicating that the computation is in progress.
+---
 
-Upon successful submission, the API returns a response similar to the following:
+## 1.3. Example API Response
 
-```
+### Initial API Response (Computation in Progress)
+Upon submission, the API immediately responds with a computation ID and status:
+
+```json
 {
     "computationId": "f03efc3c-cd8f-4341-a84e-000caa380f89",
     "status": "Computing",
@@ -106,35 +109,33 @@ Upon successful submission, the API returns a response similar to the following:
 }
 ```
 
-This response confirms that the computation has started and provides a unique identifier (**computationId**) that can be used to track progress. The status field will be `Computing` until the optimization is completed.
+### Final Computation Result (Optimized Portfolio)
+Once the computation completes, the API returns the optimized portfolio weights:
 
-#### The results of the Index Tracking computation
-
-Once the computation finishes, a request using the computationId will return the final results, including the optimized portfolio weights:
-
-```
+```json
 {
     "computationId": "f03efc3c-cd8f-4341-a84e-000caa380f89",
     "status": "Ok",
-    "computationTimeInSeconds": 6.04132682457566,
-    "computationStartTimeUtc": "2025-02-27T12:27:34",
-    "computationEndTimeUtc": "2025-02-27T12:27:40",
-    "computationStoreTimeUtc": "2025-02-27T12:27:25.013",
+    "computationTimeInSeconds": 6.0413,
     "named_solution": {
-        "a": 0.07245113723813226,
+        "a": 0.0724,
         "b": 0.0,
-        "c": 0.18209735393732956,
-        "d": 0.1715528469182913,
-        "e": 0.2063531488919239,
-        "f": 0.025268033179531774,
+        "c": 0.1821,
+        "d": 0.1716,
+        "e": 0.2064,
+        "f": 0.0253,
         "g": 0.0,
-        "h": 0.25879286394294676,
-        "i": 0.0492202456041059,
-        "j": 0.03426501268672931
+        "h": 0.2588,
+        "i": 0.0492,
+        "j": 0.0343
     },
     "info": 0
 }
 ```
+
+This structured output provides insights into the computation and its results.
+
+
 
 ### The main components of the input: creating a new portfolio
 The Index Tracking API is designed to be flexible, allowing users to specify only the necessary parameters for their specific use case. While many parameters are optional and can be used to impose constraints or refine the optimization, there are a few mandatory parameters that must always be provided, whether you are creating a new portfolio from scratch or rebalancing an existing one.
@@ -151,7 +152,7 @@ Additionally, while not strictly mandatory, it is always helpful to include:
 
 A valid request with only the mandatory parameters (plus a description for clarity) might look like this:
 
-```
+```json
 {
   "assets_covariance_matrix": [
     [3.571705619883564, -0.7955365555749586, 0.12557964034596986, 1.0639482728918976, -0.40191777016183283, 0.6863605725971405, -0.13949908918445247, 0.1711775516765147, 0.6755160399639315, 2.51293081246698],
