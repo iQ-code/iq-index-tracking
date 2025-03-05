@@ -6,12 +6,10 @@ The **Inspiration-Q SDK** simplifies interactions with the API by abstracting lo
 
 To ensure a clean and isolated development environment, create a Python virtual environment named `iq-index-tracking` and install the required dependencies (`numpy` and `requests`). Below are multiple ways to set up the environment:
 
-### 1. Using `venv` (Standard Library)
+### 1. Using `conda`
 ```bash
-python -m venv iq-index-tracking
-source iq-index-tracking/bin/activate  # On macOS/Linux
-# On Windows: iq-index-tracking\Scripts\activate
-pip install numpy requests
+conda create --name iq-index-tracking python=3.9 numpy requests
+conda activate iq-index-tracking
 ```
 
 ### 2. Using `virtualenv`
@@ -23,10 +21,12 @@ source iq-index-tracking/bin/activate  # On macOS/Linux
 pip install numpy requests
 ```
 
-### 3. Using `conda`
+### 3. Using `venv` (Standard Library)
 ```bash
-conda create --name iq-index-tracking python=3.9 numpy requests
-conda activate iq-index-tracking
+python -m venv iq-index-tracking
+source iq-index-tracking/bin/activate  # On macOS/Linux
+# On Windows: iq-index-tracking\Scripts\activate
+pip install numpy requests
 ```
 
 ### 4. Using `pipenv`
