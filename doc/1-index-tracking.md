@@ -57,8 +57,8 @@ The API constructs an optimized portfolio that tracks a benchmark index while ad
 | Field Name | Type | Description |
 |------------|------|-------------|
 | `description` | string | Brief description of the portfolio. |
-| `assets_covariance_matrix` | array | Covariance matrix of asset returns. |
-| `index_assets_covariance_vector` | array | Covariance vector between asset and index returns. |
+| `assets_utility_matrix` | array | The quadratic utility matrix of the assets in the look back window. For example, it could be a covariance matrix or a quadratic distance matrix. |
+| `assets_to_benchmark_utility_vector` | array | The quadratic utility vector between the assets and the benchmark in the look back window. For example, it could be a covariance matrix or a quadratic distance matrix. |
 | `asset_names` | array | List of asset names or identifiers. |
 | `portfolio_size` | integer | Number of assets in the portfolio (1-2047). |
 | `minimum_weight` | number (optional) | Minimum weight per asset (default: `0`). |
@@ -141,8 +141,8 @@ The Index Tracking API is designed to be flexible, allowing users to specify onl
 
 The following parameters are always required for a valid computation request:
 
-- assets_covariance_matrix: The covariance matrix of assets, representing the risk and correlation between them.
-- index_assets_covariance_vector: The covariance vector between assets and the index, used to measure how each asset relates to the index.
+- assets_utility_matrix: The covariance matrix of assets, representing the risk and correlation between them.
+- assets_to_benchmark_utility_vector: The covariance vector between assets and the index, used to measure how each asset relates to the index.
 - portfolio_size: The number of assets to be included in the portfolio (ranging from 1 to 2047).
 - asset_names: An array of asset identifiers or names, providing a reference for interpreting the results.
 
@@ -153,7 +153,7 @@ A valid request with only the mandatory parameters (plus a description for clari
 
 ```json
 {
-  "assets_covariance_matrix": [
+  "assets_utility_matrix": [
     [3.571705619883564, -0.7955365555749586, 0.12557964034596986, 1.0639482728918976, -0.40191777016183283, 0.6863605725971405, -0.13949908918445247, 0.1711775516765147, 0.6755160399639315, 2.51293081246698],
     [-0.7955365555749586, 5.415520138923123, -2.0174005804761763, 0.030388266205496173, 2.550222403729447, 0.5643289518319003, -1.293304939459475, -0.5751123806041349, 3.594236909963808, 1.8956893890593007],
     [0.12557964034596986, -2.0174005804761763, 6.365322954156529, 2.257879191752247, -3.658046606965999, -0.45033274824515956, -1.0273304859751011, -0.21571777326705427, -0.3865083786928926, -1.533229084930434],
@@ -165,7 +165,7 @@ A valid request with only the mandatory parameters (plus a description for clari
     [0.6755160399639315, 3.594236909963808, -0.3865083786928926, -2.5176791064421384, 3.448640251236081, -0.727328631285821, 0.27049000177733207, -0.2604720356119854, 9.083901928836333, 1.4490996023473937],
     [2.51293081246698, 1.8956893890593007, -1.533229084930434, 1.088241626988272, 0.0298926428035794, -0.3117075238989559, -0.29585690145164956, -1.9647359528399329, 1.4490996023473937, 5.4073509688190695]
   ],
-  "index_assets_covariance_vector": [0.05177358659202069, -0.3356720686060817, 0.3206831344776768, 0.41750733093212566, 0.3313631827597856, -0.13542997653680122, -0.43400507867532734, 0.29062468284108733, 0.15880933369691574, -0.441086589088471],
+  "assets_to_benchmark_utility_vector": [0.05177358659202069, -0.3356720686060817, 0.3206831344776768, 0.41750733093212566, 0.3313631827597856, -0.13542997653680122, -0.43400507867532734, 0.29062468284108733, 0.15880933369691574, -0.441086589088471],
   "portfolio_size": "8",
   "description": "Testing from Postman",
   "asset_names": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]

@@ -92,7 +92,7 @@ from iq.finance.index_tracking import solve_index_tracking
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
 # Define input values
-assets_covariance_matrix = np.array([
+assets_utility_matrix = np.array([
     [3.5717, -0.7955, 0.1256, 1.0639, -0.4019, 0.6864, -0.1395, 0.1712, 0.6755, 2.5129],
     [-0.7955, 5.4155, -2.0174, 0.0304, 2.5502, 0.5643, -1.2933, -0.5751, 3.5942, 1.8957],
     [0.1256, -2.0174, 6.3653, 2.2579, -3.6580, -0.4503, -1.0273, -0.2157, -0.3865, -1.5332],
@@ -100,7 +100,7 @@ assets_covariance_matrix = np.array([
     [-0.4019, 2.5502, -3.6580, -1.7805, 8.3905, 2.2223, -1.7717, -1.3493, 3.4486, 0.0299],
 ])
 
-index_assets_covariance_vector = np.array([0.0518, -0.3357, 0.3207, 0.4175, 0.3314])
+assets_to_benchmark_utility_vector = np.array([0.0518, -0.3357, 0.3207, 0.4175, 0.3314])
 portfolio_size = 8
 asset_names = ["a", "b", "c", "d", "e"]
 random_number_generator_seed = 359133650
@@ -108,8 +108,8 @@ random_number_generator_seed = 359133650
 def solve_portfolio():
     portfolio, info = solve_index_tracking(
         description="Index Tracking Example",
-        assets_covariance_matrix=assets_covariance_matrix,
-        index_assets_covariance_vector=index_assets_covariance_vector,
+        assets_utility_matrix=assets_utility_matrix,
+        assets_to_benchmark_utility_vector=assets_to_benchmark_utility_vector,
         portfolio_size=portfolio_size,
         asset_names=asset_names,
         minimum_weight=0.02,

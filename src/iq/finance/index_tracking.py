@@ -40,8 +40,8 @@ def build_matrix_of_sector_restrictions(
 
 
 def solve_index_tracking(
-    assets_covariance_matrix,
-    index_assets_covariance_vector,
+    assets_utility_matrix,
+    assets_to_benchmark_utility_vector,
     portfolio_size,
     asset_names,
     minimum_weight=0.0, maximum_weight=1.0,
@@ -85,7 +85,7 @@ def solve_index_tracking(
 
     To solve the IT problem we write it as an MIQP problem:
 
-    min_w   w @ assets_covariance_matrix @ w - index_assets_covariance_vector @ w + Var(r_I)
+    min_w   w @ assets_utility_matrix @ w - assets_to_benchmark_utility_vector @ w + Var(r_I)
     with    w_i either a real number or zero
     s.t.    count( w_i != 0) = portfolio_size
             minimum_weight <= w_i <= maximum_weight
@@ -105,12 +105,12 @@ def solve_index_tracking(
 
     Parameters
     ----------
-    assets_covariance_matrix : ndarray[(num_assets, num_assets), dtype=np.double]
+    assets_utility_matrix : ndarray[(num_assets, num_assets), dtype=np.double]
         Covariance matrix between all assets. If some assets contain missing
         data and they should be excluded from the tracker portfolio, they
         will have a -1 a the corresponding diagonal elements and 0's in their
         corresponding rows and columns.
-    index_assets_covariance_vector : ndarray[(num_assets,), dtype=np.double]
+    assets_to_benchmark_utility_vector : ndarray[(num_assets,), dtype=np.double]
         Covariance vector between the index and assets' returns. If some assets
         contain missing data and they should be excluded from the tracker
         portfolio, they will have a 0 in their corresponding elements.
@@ -119,7 +119,7 @@ def solve_index_tracking(
     asset_names : ndarray[(num_assets,), dtype=str]
         List with the ticker names of the assets of the covariance matrix. It is
         assumed that this list coincides with the tickers of the
-        index_assets_covariance_vector and of the r matrix if it is given.
+        assets_to_benchmark_utility_vector and of the r matrix if it is given.
     minimum_weight : float, default=0.0
         Lower bound for the elements of the solution portfolio.
     maximum_weight : float, default=1.0
@@ -185,18 +185,18 @@ def solve_index_tracking(
     try:
         MAX_ARRAY_DIM = 2048
 
-        num_assets = assets_covariance_matrix.shape[0]
+        num_assets = assets_utility_matrix.shape[0]
         # Do a check of the covariances without the semidefinite positive check,
         # because missing data makes it non semidefinite positive.
         validate.validate_matrix(
-            assets_covariance_matrix, "assets_covariance_matrix",
+            assets_utility_matrix, "assets_utility_matrix",
             MAX_ARRAY_DIM, MAX_ARRAY_DIM,
             b_A_must_be_square=True,
             b_A_must_be_symmetric=True,
             b_A_must_be_semidefinite_positive=False
         )
         validate.validate_vector(
-            index_assets_covariance_vector, "index_assets_covariance_vector",
+            assets_to_benchmark_utility_vector, "assets_to_benchmark_utility_vector",
             num_assets,
             b_size_of_a_must_be_eq_to_max_size=True,
             name_of_variable_with_equivalent_size=f"the dimensions of the assets covariance matrix"
@@ -209,15 +209,15 @@ def solve_index_tracking(
         )
 
         # Remove assets with missing data. These are the ones that have -1 in the
-        # diagonal elements of the assets_covariance_matrix.
-        ix_of_assets_without_missing_data = np.where(np.diag(assets_covariance_matrix) != -1)[0]
+        # diagonal elements of the assets_utility_matrix.
+        ix_of_assets_without_missing_data = np.where(np.diag(assets_utility_matrix) != -1)[0]
         num_assets_without_missing_data = ix_of_assets_without_missing_data.size
         I, J = np.meshgrid(ix_of_assets_without_missing_data, ix_of_assets_without_missing_data)
-        assets_covariance_matrix_without_missing_data = np.ascontiguousarray(assets_covariance_matrix[I, J])
+        assets_utility_matrix = np.ascontiguousarray(assets_utility_matrix[I, J])
 
         # Check again that the remainding matrix is semidefinite positive.
         validate.validate_matrix(
-            assets_covariance_matrix_without_missing_data, "assets_covariance_matrix_without_missing_data",
+            assets_utility_matrix_without_missing_data, "assets_utility_matrix_without_missing_data",
             MAX_ARRAY_DIM, MAX_ARRAY_DIM,
             b_A_must_be_square=True,
             b_A_must_be_symmetric=True,
@@ -253,8 +253,8 @@ def solve_index_tracking(
     validate.dictionary(options)
 
     json_args={
-        "assets_covariance_matrix": assets_covariance_matrix.tolist(),
-        "index_assets_covariance_vector": index_assets_covariance_vector.tolist(),
+        "assets_utility_matrix": assets_utility_matrix.tolist(),
+        "assets_to_benchmark_utility_vector": assets_to_benchmark_utility_vector.tolist(),
         "portfolio_size": validate.integer(portfolio_size, 1, num_assets-1),
         "asset_names": asset_names.tolist(),
         "minimum_weight": validate.real(minimum_weight),
