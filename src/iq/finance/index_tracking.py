@@ -213,7 +213,7 @@ def solve_index_tracking(
         ix_of_assets_without_missing_data = np.where(np.diag(assets_utility_matrix) != -1)[0]
         num_assets_without_missing_data = ix_of_assets_without_missing_data.size
         I, J = np.meshgrid(ix_of_assets_without_missing_data, ix_of_assets_without_missing_data)
-        assets_utility_matrix = np.ascontiguousarray(assets_utility_matrix[I, J])
+        assets_utility_matrix_without_missing_data = np.ascontiguousarray(assets_utility_matrix[I, J])
 
         # Check again that the remainding matrix is semidefinite positive.
         validate.validate_matrix(
