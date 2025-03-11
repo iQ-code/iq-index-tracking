@@ -21,10 +21,110 @@ where:
 - $\vec{g}$ is the vector of covariances between asset returns and index returns,
 - $\sigma$ is the covariance matrix of asset returns.
 
-### Constraints in Index Tracking
+## 1.2. Definition of tracking error
+The Tracking Error (TE) of a tracker portfolio with respect to a benchmark index is defined as the standard deviation of the difference between the returns of the index $r_I(t)$ and of the portfolio $r_p(t)$ during some time window $\Delta T$:
+
+$$
+\textrm{TE} = \textrm{Std}\left[ r_I(t) - r_p(t) \right]_{t \in \Delta T} = \sqrt{\textrm{Var}\left[ r_I(t) - r_p(t) \right]_{t \in \Delta T}}.
+$$
+
+Because the tracking error is always greater or equal to zero, we know that the portfolio that minimizes the squared tracking error will also minimize the tracking error. Thus, we select the squared tracking error as the function that we want to minimize
+
+$$
+\textrm{TE}^2 = \textrm{Var}\left[ r_I(t) - r_p(t) \right],
+$$
+
+where we do not specify the time window $\Delta T$ for the sake of simplicity. We can decompose this variance into a sum of two volatilities minus a covariance between the index and portfolio returns. We will temporarily not write the $(t)$ terms for clarity:
+
+$$
+\begin{split}
+    \textrm{TE}^2 &= \textrm{Var}\left[ r_I - r_p \right] \\
+    &= \textrm{E}\left[ \left(r_I - r_p - \textrm{E}\left[ r_I - r_p\right]\right)^2 \right] \\
+    &= \textrm{E}\left[ \left(r_I - r_p - \textrm{E}\left[ r_I \right] + \textrm{E}\left[ r_p\right]\right)^2 \right] \\
+    &= \textrm{E}\Big[ r_I^2 + r_p^2 + \textrm{E}\left[ r_I \right]^2 + \textrm{E}\left[ r_p\right]^2 \\
+    &\quad  - 2r_I r_p - 2r_I\textrm{E}\left[ r_I \right] + 2r_I\textrm{E}\left[ r_p \right] \\
+    &\quad + 2r_p\textrm{E}\left[ r_I \right] - 2r_p\textrm{E}\left[ r_p \right] - 2\textrm{E}\left[ r_I \right] \textrm{E}\left[ r_p \right] \Big]
+\end{split}
+$$
+
+Using the fact that $\textrm{E}\Big[ x\, \textrm{E}\left[ y \right]\Big] = \textrm{E}\left[ x \right]\textrm{E}\left[ y \right]$, the tracking error becomes:
+
+$$
+\textrm{TE}^2 = \textrm{Var}\left[ r_I(t)\right] + \textrm{Var}\left[ r_p(t)\right] - 2\,\textrm{Cov}\left[ r_I(t), r_p(t)\right].
+$$
+
+Thus, we can write the tracking error as the sum of the volatilities of the index and the tracker minus the covariance of both returns.
+
+If the portfolio is composed of a series of assets with some defined allocation weights inside the portfolio, then we can decompose the returns of the portfolio in terms of the returns of the assets inside the index
+
+$$
+    r_p(t) = \sum_i \omega_i(t) r_i(t),
+$$
+
+with $\omega_i(t)$ and $r_i(t)$ the allocation weight and return of asset $i$ at time $t$, respectively. In practice, one assumes that the allocation weights are kept constant during the in-sample period
+
+$$
+    r_p(t) = \sum_i \omega_i r_i(t).
+$$
+
+Therefore, the tracking error is
+
+$$
+    \textrm{TE}^2 = \textrm{Var}\left[ r_I(t)\right] + \textrm{Var}\left[ \sum_i \omega_i r_i(t)\right] - 2\,\textrm{Cov}\left[ r_I(t), \sum_i \omega_i r_i(t)\right].
+$$
+
+Because the returns of the portfolio are a linear combination of the returns of the assets, we can further decompose the volatility of the portfolio and the covariance into covariances of the assets returns
+
+$$
+    \begin{split}
+        \textrm{Cov}\left[ r_I, \sum_i \omega_i r_i\right] &= \sum_i \omega_i \textrm{Cov}\left[ r_I(t), r_i(t)\right],
+    \end{split}
+$$
+
+and similarly for the variance of the portfolio
+
+$$
+    \textrm{Var}\left[ \sum_i \omega_i r_i\right] = \sum_{ij} \omega_i \omega_j \textrm{Cov}\left[ r_i(t), r_j(t)\right].
+$$
+
+Thus, we can write the tracking error as
+
+$$
+    \textrm{TE}^2 = \textrm{Var}\left[ r_I(t) \right] - 2 \sum_i \omega_i \textrm{Cov}\left[ r_I(t), r_i(t) \right] + \sum_{ij} \omega_i \omega_j \textrm{Cov}\left[ r_i(t), r_j(t) \right].
+$$
+
+We can join these terms defining a vector $\vec{g}$ of covariances between the index' and assets' returns
+
+$$
+    g_i = \textrm{Cov}\left[ r_I(t), r_i(t) \right]
+$$
+
+and the covariance matrix of the assets' returns $\sigma$
+
+$$
+    \sigma_{ij} = \textrm{Cov}\left[ r_i(t), r_j(t) \right].
+$$
+
+Thus, the squared tracking error is
+
+$$
+    \textrm{TE}^2 = \textrm{Var}\left[ r_I(t) \right] - 2 \vec{g}^T \vec{\omega} + \vec{\omega}^T \sigma \vec{\omega}.
+$$
+
+### Interpretation of the Tracking Error
+
+The above definition of the squared tracking error contains the sum of two volatilities. This expression can be interpreted as:
+
+1. The volatility of the index is just a constant term that does not play any role when minimizing the tracking error.
+2. The term $-\vec{g}^T \vec{\omega}$ makes that the tracker portfolio will try to have assets with a good correlation with the index.
+3. The term $\vec{\omega}^T \sigma \vec{\omega}$ makes that the tracker portfolio will try to lower its risk or volatility by diversifying its allocation weights into uncorrelated assets.
+
+
+
+## 1.3. Constraints in index tracking
 A portfolio manager must comply with specific constraints while constructing a tracker portfolio, considering both **transaction cost reduction** and **weight allocation** constraints. **iQ-Finance** provides the following constraints:
 
-#### 1. Constraints for Reducing Transaction Costs
+### 1. Constraints for Reducing Transaction Costs
 These constraints aim to minimize costs when rebalancing a portfolio by considering the previous portfolio (`previous_portfolio` in the API):
 - **Ticker rotation**: Limits the number of assets that can leave the portfolio in a rebalance, defined as `max_companies_rotation`.
 - **Turnover rotation**: Limits the weight of assets sold during rebalancing, defined as `max_sales_rotation`. Mathematically,
@@ -33,12 +133,12 @@ $$
 \frac{1}{2} \sum_i |w_i(t) - w_i(t-1)| \leq \text{max sales rotation}.
 $$
 
-#### 2. Constraints for Weight Allocation
+### 2. Constraints for Weight Allocation
 - **`maximum_weight`** and **`minimum_weight`**: Define the maximum and minimum allocation weight of each asset in the portfolio. These values range from `0` to `1` (e.g., an 8% allocation is written as `0.08`).
 
----
 
-## 1.2. Index Tracking API
+
+## 1.4. Index Tracking API
 
 The **Inspiration-Q Index Tracking API** enables users to create and monitor index tracking computations for portfolio management. It is available at:
 
@@ -95,7 +195,7 @@ The API constructs an optimized portfolio that tracks a benchmark index while ad
 
 ---
 
-## 1.3. Example API Response
+## 1.5. Example API Response
 
 ### Initial API Response (Computation in Progress)
 Upon submission, the API immediately responds with a computation ID and status:
@@ -134,8 +234,6 @@ Once the computation completes, the API returns the optimized portfolio weights:
 
 This structured output provides insights into the computation and its results.
 
-
-
 ### The main components of the input: creating a new portfolio
 The Index Tracking API is designed to be flexible, allowing users to specify only the necessary parameters for their specific use case. While many parameters are optional and can be used to impose constraints or refine the optimization, there are a few mandatory parameters that must always be provided, whether you are creating a new portfolio from scratch or rebalancing an existing one.
 
@@ -167,19 +265,10 @@ A valid request with only the mandatory parameters (plus a description for clari
   ],
   "assets_to_benchmark_utility_vector": [0.05177358659202069, -0.3356720686060817, 0.3206831344776768, 0.41750733093212566, 0.3313631827597856, -0.13542997653680122, -0.43400507867532734, 0.29062468284108733, 0.15880933369691574, -0.441086589088471],
   "portfolio_size": "8",
-  "description": "Testing from Postman",
+  "description": "Creating a new basic portfolio",
   "asset_names": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 }
 ```
-
-### Adding basic constraints
-As we mentioned in **[The index tracking problem](#11--the-index-tracking-problem)**, we can impose conditions
-
-### Rebalancing a portfolio
-
-### Sectorization
-
-### Advanced constraints
 
 
 

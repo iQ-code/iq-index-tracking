@@ -22,7 +22,7 @@ For a deep dive, navigate to the [`doc/`](./doc/) directory.
 
 ## 📂 API Resources
 
-Inside the `API/` folder, you will find:
+Inside the [`API/`](./api/) folder, you will find:
 
 - **[Postman Collection](api/Inspiration-Q_Index_Tracking_API.postman_collection.json):** A set of predefined API requests that can be imported into [Postman](https://www.postman.com/) for quick and easy testing of the API.
 - **[Open API Definition](api/iq-index-tracking.yaml):** A structured file that describes the API endpoints, request/response formats, and authentication methods. You can use this file to visualize and test the API in tools like [Swagger UI](https://editor.swagger.io/) or integrate it into your own development workflow.
@@ -33,7 +33,7 @@ These resources are designed to help developers quickly understand and interact 
 
 ## 🆕 For Absolute Beginners
 
-If you're new to coding and not familiar with **Git, Python, or Conda**, don't worry! You can find a dedicated **prerequisites** file inside the `doc/` folder that will guide you through the basics you need to get started.
+If you're new to coding and not familiar with **Git, Python, or Conda**, don't worry! You can find a dedicated **prerequisites** file inside the [`doc/`](./doc/) folder that will guide you through the basics you need to get started.
 
 ---
 
@@ -56,7 +56,7 @@ Nevertheless, the fastest way to get started with the SDK is install it via `pip
 ```bash
 pip install .
 ```
-
+---
 ## 📚 Resources & Support
 
 If you need help, here are some useful resources:

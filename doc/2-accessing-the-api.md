@@ -53,8 +53,6 @@ If it is still running the calculus, you will get:
 ```
 
 
-
-
 ## 2.2. A Postman Collection
 
 ### Overview
