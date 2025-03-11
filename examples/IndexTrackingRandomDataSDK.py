@@ -6,25 +6,25 @@ from iq.finance.index_tracking import solve_index_tracking
 iq.api.iqrestapi.initialize_credentials("<your-api-key>")
 
 
-def generate_assets_covariance_matrix(L, rng_seed, ix_missing_data=[]):
+def generate_assets_utility_matrix(L, rng_seed, ix_missing_data=[]):
     rng = np.random.default_rng(rng_seed)
     r = rng.normal(size=(L, L))
-    assets_covariance_matrix = 0.5 * r.T @ r
+    assets_utility_matrix = 0.5 * r.T @ r
     if len(ix_missing_data) > 0:
         for ix in ix_missing_data:
-            assets_covariance_matrix[ix, :] = 0
-            assets_covariance_matrix[:, ix] = 0
-            assets_covariance_matrix[ix, ix] = -1
-    return assets_covariance_matrix
+            assets_utility_matrix[ix, :] = 0
+            assets_utility_matrix[:, ix] = 0
+            assets_utility_matrix[ix, ix] = -1
+    return assets_utility_matrix
 
 
-def generate_index_assets_covariance_vector(L, rng_seed, ix_missing_data=[]):
+def generate_assets_to_benchmark_utility_vector(L, rng_seed, ix_missing_data=[]):
     rng = np.random.default_rng(rng_seed)
-    index_assets_covariance_vector = -0.5 * (1-2*rng.random(size=(L,), dtype=np.double))
+    assets_to_benchmark_utility_vector = -0.5 * (1-2*rng.random(size=(L,), dtype=np.double))
     if len(ix_missing_data) > 0:
         for ix in ix_missing_data:
-            index_assets_covariance_vector[ix] = 0
-    return index_assets_covariance_vector
+            assets_to_benchmark_utility_vector[ix] = 0
+    return assets_to_benchmark_utility_vector
 
 
 def generate_names(L):
@@ -68,8 +68,8 @@ def generate_inequalities(
 
 portfolio, info = iq.finance.index_tracking.solve_index_tracking(
                 description="IndexTracking: n_assets=10, portfolio_size=7, 3 inequalities",
-                assets_covariance_matrix=generate_assets_covariance_matrix(10, 1),
-                index_assets_covariance_vector=generate_index_assets_covariance_vector(10, 1),
+                assets_utility_matrix=generate_assets_utility_matrix(10, 1),
+                assets_to_benchmark_utility_vector=generate_assets_to_benchmark_utility_vector(10, 1),
                 portfolio_size=7,
                 asset_names=generate_names(10),
                 minimum_weight=0.02,

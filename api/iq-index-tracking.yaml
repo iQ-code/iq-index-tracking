@@ -152,26 +152,27 @@ components:
 
     IndexTracking:
       required:
-        - assets_covariance_matrix
-        - index_assets_covariance_vector
+        - assets_utility_matrix
+        - assets_to_benchmark_utility_vector
         - portfolio_size
+        - asset_names
       type: object
       properties:
         description:
           type: string
           description: A brief description of the portfolio that will be obtained.
           example: SP500 tracker, size=60
-        assets_covariance_matrix:
+        assets_utility_matrix:
           type: array
-          description: The covariance matrix of the assets in the look back window.
+          description: The quadratic utility matrix of the assets in the look back window. For example, it could be a covariance matrix or a quadratic distance matrix.
           items:
             type: array
             items:
               type: number
           example: [ [1.23, 2.13], [3.13, 4.09] ]
-        index_assets_covariance_vector:
+        assets_to_benchmark_utility_vector:
           type: array
-          description: The covariance vector between the assets and the index in the look back window.
+          description: The quadratic utility vector between the assets and the benchmark in the look back window. For example, it could be a covariance matrix or a quadratic distance matrix.
           items:
             type: number
           example: [1.31, 33.541]
