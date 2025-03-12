@@ -53,7 +53,6 @@ def solve_index_tracking(
     sectorial_weight_tolerance=None,
     sum_of_portfolio_weights=1.0,
     random_number_generator_seed=123321,
-    options={},
     description=""
 ):
     """Solve the index tracking (IT) problem using population annealing.
@@ -148,12 +147,6 @@ def solve_index_tracking(
         from the sector weight in the index.
     random_number_generator_seed : int, optional, default=123321
         Random number generator seed for Monte Carlo
-    options : dict, default={}
-        Dictionary of optimization hyperparameters. Accepted keys:
-        copies : int, default=100
-            Number of configurations in the algorithm.
-        n_jobs : int, default=1
-            Number of jobs to solve in parallel.
     description : str, optional, default=""
         Small descriptive name for this computation.
 
@@ -169,10 +162,6 @@ def solve_index_tracking(
         Detailed description of the error that happened, if any.
 
     """
-    if "copies" not in options:
-        options["copies"] = 30
-    if "n_jobs" not in options:
-        options["n_jobs"] = 1
 
     # Initial error codes.
     status = "Ok"
@@ -256,7 +245,6 @@ def solve_index_tracking(
         return optimal_portfolio, status, error_description
 
     try:
-        validate.dictionary(options)
 
         json_args={
             "assets_utility_matrix": assets_utility_matrix.tolist(),
@@ -266,7 +254,6 @@ def solve_index_tracking(
             "minimum_weight": validate.real(minimum_weight),
             "maximum_weight": validate.real(maximum_weight),
             "sum_of_portfolio_weights": validate.real(sum_of_portfolio_weights),
-            "options": options,
             "random_number_generator_seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
             "description": validate.string(description)
         }
