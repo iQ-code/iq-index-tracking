@@ -41,7 +41,6 @@ If you're new to coding and not familiar with **Git, Python, or Conda**, don't w
 - ✅ **Comprehensive Index Tracking explanation**
 - ✅ **API details and usage**
 - ✅ **SDK for Python**  
-- ✅ **Web interface guide**  
 - ✅ **Tools to calculate the covariance and quadratic distance matrixes**  
 
 ---

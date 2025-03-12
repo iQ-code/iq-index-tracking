@@ -24,7 +24,7 @@ asset_names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 random_number_generator_seed = 359133650
 
 def solve_portfolio():
-    portfolio, info = solve_index_tracking(
+    portfolio, status, error_description = solve_index_tracking(
         description="Index Tracking Example",
         assets_utility_matrix=assets_utility_matrix,
         assets_to_benchmark_utility_vector=assets_to_benchmark_utility_vector,
@@ -37,6 +37,9 @@ def solve_portfolio():
         max_sales_rotation=None
     )
     print("Optimal Portfolio Weights:", portfolio)
-    print("Solver Info Code:", info)
+    if status == "Ok":
+        print("✅ No errors encountered.")
+    elif error_description:
+        print(f"❌ Error: {error_description}")
 
 solve_portfolio()
