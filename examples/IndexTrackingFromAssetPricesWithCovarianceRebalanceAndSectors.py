@@ -83,14 +83,14 @@ portfolio, status, error_description = solve_index_tracking(
     assets_to_benchmark_utility_vector=cov_vector,
     portfolio_size=60,
     asset_names=tickers,
-    minimum_weight=0.01,
-    maximum_weight=0.55,
+    minimum_weight=0.005,
+    maximum_weight=0.10,
     previous_portfolio=previous_portfolio,
     max_companies_rotation=15,
     max_sales_rotation=0.2,
     sectorial_weights=sector_weights,
     sectorial_distribution=sector_distribution,
-    sectorial_weight_tolerance=0.015
+    sectorial_weight_tolerance=0.05
 )
 
 # Display the optimal portfolio results
