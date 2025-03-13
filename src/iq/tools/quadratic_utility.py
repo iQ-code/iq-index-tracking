@@ -129,6 +129,8 @@ def compute_covariance_matrix(
     assets_index_prices : pandas.DataFrame
         DataFrame containing asset price time series data. Each column should represent
         an asset's prices indexed by dates.
+    benchmark_column : str
+        The name of the column in the assets_index_prices that corresponds to the benchmark to follow.
     date_from : str or pandas.Timestamp
         Start date for the covariance calculation period.
     date_to : str or pandas.Timestamp
@@ -145,9 +147,11 @@ def compute_covariance_matrix(
 
     Returns
     -------
-    pandas.DataFrame
-        Square covariance matrix where both index and columns are asset names.
-        Shape will be (n_assets, n_assets).
+    cost_matrix (numpy.ndarray): A square matrix representing the covariance between assets, excluding the benchmark asset.
+
+    benchmark_cost_vector (numpy.ndarray): A vector containing the covariance values of each asset with the benchmark asset.
+
+    tickers (list[str]): A list of asset tickers excluding the benchmark asset.
 
     """
     covariance_matrix, covariance_vector, tickers = compute_quadratic_utility(
@@ -180,6 +184,8 @@ def compute_cumulative_returns_distance_matrix(
     assets_index_prices : pandas.DataFrame
         DataFrame containing asset price time series data. Each column should represent
         an asset's prices indexed by dates.
+    benchmark_column : str
+        The name of the column in the assets_index_prices that corresponds to the benchmark to follow.
     date_from : str or pandas.Timestamp
         Start date for the quadratic distance calculation period.
     date_to : str or pandas.Timestamp
@@ -196,9 +202,11 @@ def compute_cumulative_returns_distance_matrix(
 
     Returns
     -------
-    pandas.DataFrame
-        Square quadratic distance matrix where both index and columns are asset names.
-        Shape will be (n_assets, n_assets).
+    cost_matrix (numpy.ndarray): A square matrix representing the quadratic distance between assets, excluding the benchmark asset.
+
+    benchmark_cost_vector (numpy.ndarray): A vector containing the quadratic distance values of each asset with the benchmark asset.
+
+    tickers (list[str]): A list of asset tickers excluding the benchmark asset.
 
     """
     distance_matrix, distance_vector, tickers = compute_quadratic_utility(
