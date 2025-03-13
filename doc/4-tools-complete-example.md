@@ -1,4 +1,4 @@
-# 4.- Index Tracking tools and a complete example
+# 4.- Index Tracking tools and complete examples
 So far we have used synthetic data for the Index Tracking examples. But as we have defined, the utility function matrix must be a covariance or quadratic distance matrix, which must be calculated from a price history. 
 
 We provide a tool to calculate this data from a covariance history, which we explain in this section. 
