@@ -85,6 +85,7 @@ portfolio, status, error_description = solve_index_tracking(
 
 # Print results
 print("Optimal Portfolio Weights:")
+portfolio = {asset : round(100 * weight, 4) for asset, weight in portfolio.items()}
 print(portfolio)
 
 print("\nSolver Status:", status)

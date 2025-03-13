@@ -36,6 +36,7 @@ def solve_portfolio():
         max_companies_rotation=None,
         max_sales_rotation=None
     )
+    portfolio = {asset : round(100 * weight, 4) for asset, weight in portfolio.items()}
     print("Optimal Portfolio Weights:", portfolio)
     if status == "Ok":
         print("✅ No errors encountered.")
