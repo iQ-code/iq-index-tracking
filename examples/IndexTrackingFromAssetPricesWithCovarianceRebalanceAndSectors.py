@@ -44,6 +44,9 @@ previous_portfolio = read_csv_as_dict("data/previous_portfolio.csv", False)
 sector_weights = read_csv_as_dict("data/sector_weights.csv", True)
 sector_distribution = read_csv_as_dict("data/sector_distribution.csv", True)
 
+# Write sector weights from percentage points to [0, 1) values.
+sector_weights = {asset : weight_pct / 100.0 for asset, weight_pct in sector_weights.items()}
+
 # Print the asset prices for verification
 print("Asset Index Prices:")
 print(assets_index_prices.head())
