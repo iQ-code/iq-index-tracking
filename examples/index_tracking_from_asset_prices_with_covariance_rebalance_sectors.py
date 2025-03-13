@@ -20,11 +20,34 @@ def read_from_csv(file_path: str) -> pd.DataFrame:
     """
     return pd.read_csv(file_path, index_col=0, parse_dates=True)
 
+def read_csv_as_dict(file_path: str, no_header: bool) -> dict:
+    """
+    Reads a CSV file into a dictionary.
+    Assumes the first column contains keys and the second column contains values.
+    
+    Parameters:
+        file_path (str): Path to the CSV file.
+    
+    Returns:
+        dict: Dictionary containing the CSV data.
+    """
+    if (no_header):
+        df = pd.read_csv(file_path, index_col=0, header=None)
+    else:
+        df = pd.read_csv(file_path, index_col=0)
+    return df.squeeze().to_dict()
+
 # Load required data
 assets_index_prices = read_from_csv("data/asset_prices.csv")
+previous_portfolio = read_csv_as_dict("data/previous_portfolio.csv", True)
+sector_weights = read_csv_as_dict("data/sector_weights.csv", True)
+sector_distribution = read_csv_as_dict("data/sector_distribution.csv", True)
+
+# Write sector weights from percentage points to [0, 1) values.
+sector_weights = {asset : weight_pct / 100.0 for asset, weight_pct in sector_weights.items()}
 
 # Print the asset prices for verification
-print("\nAsset Index Prices:")
+print("Asset Index Prices:")
 print(assets_index_prices.head())
 
 # Define the date range for analysis
@@ -59,16 +82,21 @@ portfolio, status, error_description = solve_index_tracking(
     assets_to_benchmark_utility_vector=cov_vector,
     portfolio_size=60,
     asset_names=tickers,
-    minimum_weight=0.01,
-    maximum_weight=0.55
+    minimum_weight=0.005,
+    maximum_weight=0.10,
+    previous_portfolio=previous_portfolio,
+    max_companies_rotation=15,
+    max_sales_rotation=0.2,
+    sectorial_weights=sector_weights,
+    sectorial_distribution=sector_distribution,
+    sectorial_weight_tolerance=0.05
 )
 
-# Format and display the optimal portfolio results
+# Display the optimal portfolio results
 print("\nOptimal Portfolio Weights:")
-portfolio = {asset: round(100 * weight, 4) for asset, weight in portfolio.items()}
+portfolio = {asset : round(100 * weight, 4) for asset, weight in portfolio.items()}
 print(portfolio)
 
-# Check status and print appropriate messages
 if status == "Ok":
     print("✅ No errors encountered.")
 elif error_description:
