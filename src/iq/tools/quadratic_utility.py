@@ -4,6 +4,7 @@ import numpy as np
 
 def compute_quadratic_utility(
     assets_index_prices : pd.DataFrame,
+    benchmark_column: str,
     str_cost_function : str,
     date_from : str | pd.Timestamp,
     date_to : str | pd.Timestamp,
@@ -13,6 +14,13 @@ def compute_quadratic_utility(
 ):
     if str_cost_function not in ["covariance", "quadratic_distance"]:
         raise ValueError(f"Cost function '{str_cost_function}' is not valid. Possible values are 'covariance' or 'quadratic_distance'.")
+    
+    if benchmark_column not in assets_index_prices.columns:
+        raise ValueError(f"Benchmark column '{benchmark_column}' is not in the provided DataFrame.")
+    
+    # Move benchmark column to the last position
+    assets_index_prices = assets_index_prices[[col for col in assets_index_prices.columns if col != benchmark_column] + [benchmark_column]]
+    
 
     # Make sure that the prices dataset is ordered from earliest (top row)
     # to latest date (bottom row).
@@ -97,11 +105,16 @@ def compute_quadratic_utility(
         index=tickers,
         columns=tickers
     )
-    return cost_function_matrix
+    cost_matrix = cost_function_matrix.iloc[:-1, :-1].to_numpy()
+    benchmark_cost_vector = cost_function_matrix.iloc[:-1, -1].to_numpy()
+
+    # We do not include the benchmark_column, the last one after the reordering, in the tickers list that we return
+    return cost_matrix, benchmark_cost_vector, tickers[:-1].to_list()
 
 
 def compute_covariance_matrix(
     assets_index_prices : pd.DataFrame,
+    benchmark_column: str,
     date_from : str | pd.Timestamp,
     date_to : str | pd.Timestamp,
     EMWA_halflife : int = 252,
@@ -137,8 +150,9 @@ def compute_covariance_matrix(
         Shape will be (n_assets, n_assets).
 
     """
-    covariance_matrix = compute_quadratic_utility(
+    covariance_matrix, covariance_vector, tickers = compute_quadratic_utility(
         assets_index_prices=assets_index_prices,
+        benchmark_column=benchmark_column,
         str_cost_function="covariance",
         date_from=date_from, 
         date_to=date_to,
@@ -146,11 +160,12 @@ def compute_covariance_matrix(
         maximum_missing_data_ratio_allowed=maximum_missing_data_ratio_allowed,
         l2_regularization=l2_regularization
     )
-    return covariance_matrix
+    return covariance_matrix, covariance_vector, tickers
 
 
 def compute_cumulative_returns_distance_matrix(
     assets_index_prices : pd.DataFrame,
+    benchmark_column: str,
     date_from : str | pd.Timestamp,
     date_to : str | pd.Timestamp,
     EMWA_halflife : int = 252,
@@ -186,8 +201,9 @@ def compute_cumulative_returns_distance_matrix(
         Shape will be (n_assets, n_assets).
 
     """
-    distance_matrix = compute_quadratic_utility(
+    distance_matrix, distance_vector, tickers = compute_quadratic_utility(
         assets_index_prices=assets_index_prices,
+        benchmark_column=benchmark_column,
         str_cost_function="quadratic_distance",
         date_from=date_from, 
         date_to=date_to,
@@ -195,7 +211,7 @@ def compute_cumulative_returns_distance_matrix(
         maximum_missing_data_ratio_allowed=maximum_missing_data_ratio_allowed,
         l2_regularization=l2_regularization
     )
-    return distance_matrix
+    return distance_matrix, distance_vector, tickers
 
 
 def compute_EWMA_cost_function(data, halflife, b_remove_mean):
