@@ -106,6 +106,10 @@ components:
           enum: [Pending, Computing, Failed, Ok]
           description: "Pending: the computation is waiting to start. Computing: the computation is running. Failed: the computation has failed. Ok: the computation has finished properly and the solution is ready."
           example: Ok
+        error_description:
+          type: string
+          example: "Validation: The input utility matrix is not a square matrix."
+          description: String with the description of any error that resulted in the computation. 
         progress:
           type: integer
           format: Int32
@@ -137,10 +141,6 @@ components:
             type: number
           example: {"alpha": 0.2, "beta": 0.8}
           description: Optimal solution found for the problem with an identifier for each of the members of the solution.
-        info:
-          type: number
-          example: 0
-          description: Integer number with information about the algorithm's computation. 0 if the algorithm found no problems. Different than 0 if there was any problem. The INFO codes vary for each algorithm.
         cost:
           type: number
           description: Optional. Minimum value found for the cost function.
