@@ -40,7 +40,7 @@ def read_csv_as_dict(file_path: str, no_header: bool) -> dict:
 
 # Load required data
 assets_index_prices = read_from_csv("data/asset_prices.csv")
-previous_portfolio = read_csv_as_dict("data/previous_portfolio.csv", False)
+previous_portfolio = read_csv_as_dict("data/previous_portfolio.csv", True)
 sector_weights = read_csv_as_dict("data/sector_weights.csv", True)
 sector_distribution = read_csv_as_dict("data/sector_distribution.csv", True)
 
