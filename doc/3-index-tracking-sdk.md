@@ -8,7 +8,7 @@ To ensure a clean and isolated development environment, create a Python virtual 
 
 ### 1. Using `conda`
 ```bash
-conda create --name iq-index-tracking python=3.9 numpy requests
+conda create --name iq-index-tracking python=3.11 numpy requests pandas
 conda activate iq-index-tracking
 ```
 

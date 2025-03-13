@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 import iq.api.iqrestapi
 from iq.tools.quadratic_utility import compute_covariance_matrix
