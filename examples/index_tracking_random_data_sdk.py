@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import iq.api.iqrestapi;
-from iq.finance.index_tracking import solve_index_tracking
+import iq.finance.index_tracking
 
 iq.api.iqrestapi.initialize_credentials("<your-api-key>")
 
@@ -66,7 +66,8 @@ def generate_inequalities(
     else:
         raise Exception(f"Invalid 'output' argument, must be 'linear_constraints_matrix', 'lower_bounds_vector' or 'upper_bounds_vector'. Currently, it is {output}")
 
-portfolio, info = iq.finance.index_tracking.solve_index_tracking(
+
+portfolio, status, error_description = iq.finance.index_tracking.solve_index_tracking(
                 description="IndexTracking: n_assets=10, portfolio_size=7, 3 inequalities",
                 assets_utility_matrix=generate_assets_utility_matrix(10, 1),
                 assets_to_benchmark_utility_vector=generate_assets_to_benchmark_utility_vector(10, 1),
@@ -84,15 +85,12 @@ portfolio, info = iq.finance.index_tracking.solve_index_tracking(
 
 # Print results
 print("Optimal Portfolio Weights:")
+portfolio = {asset : round(100 * weight, 4) for asset, weight in portfolio.items()}
 print(portfolio)
 
-print("\nSolver Info Code:", info)
-if info == 0:
+print("\nSolver Status:", status)
+if status == "Ok":
     print("✅ No errors encountered.")
-elif info == 1:
-    print("❌ Invalid input arguments.")
-elif info == 2:
-    print("❌ Problem is infeasible.")
-elif info == 3:
-    print("❌ Computation failed.")
+elif error_description:
+    print(f"❌ Error: {error_description}")
 

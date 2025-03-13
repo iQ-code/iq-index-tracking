@@ -13,7 +13,7 @@ All details about the **iq-index-tracking** project are thoroughly explained in 
 1. **[Index Tracking](doc/1-index-tracking.md)** – Introduction and core concepts.
 2. **[Accessing the API](doc/2-accessing-the-api.md)** – How to interact with the Index Tracking API directly.
 3. **[Index Tracking SDK](doc/3-index-tracking-sdk.md)** – Installing and using the SDK for efficient integration.
-4. **[Index Tracking tools and a complete example](doc/4-tools-complete-example.md)** – Tools to ease the work, and full examples.
+4. **[Index Tracking tools and complete examples](doc/4-tools-complete-example.md)** – Tools to ease the work, and full examples.
 
 For a deep dive, navigate to the [`doc/`](./doc/) directory.
 
@@ -41,7 +41,6 @@ If you're new to coding and not familiar with **Git, Python, or Conda**, don't w
 - ✅ **Comprehensive Index Tracking explanation**
 - ✅ **API details and usage**
 - ✅ **SDK for Python**  
-- ✅ **Web interface guide**  
 - ✅ **Tools to calculate the covariance and quadratic distance matrixes**  
 
 ---

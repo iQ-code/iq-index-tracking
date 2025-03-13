@@ -1,4 +1,3 @@
-
 import numpy as np
 
 from iq.api import iqrestapi
@@ -19,7 +18,7 @@ def build_matrix_of_sector_restrictions(
     matrix_of_belongings = np.zeros((num_sectors, num_assets), dtype=np.double)
     for i, ticker in enumerate(asset_names):
         if ticker not in sectorial_distribution:
-            raise ValueError(f"The ticker {ticker} is in the assets of the covariance matrix but is not included in the tickers of the sector restrictions.")
+            raise ValueError(f"The ticker {ticker} is in the assets of the assets utility matrix but is not included in the tickers of the sector restrictions.")
         sector = sectorial_distribution[ticker]
         ix_of_sector = np.where(sectors == sector)[0][0]
         matrix_of_belongings[ix_of_sector, i] = 1.0
@@ -54,7 +53,6 @@ def solve_index_tracking(
     sectorial_weight_tolerance=None,
     sum_of_portfolio_weights=1.0,
     random_number_generator_seed=123321,
-    options={},
     description=""
 ):
     """Solve the index tracking (IT) problem using population annealing.
@@ -106,18 +104,18 @@ def solve_index_tracking(
     Parameters
     ----------
     assets_utility_matrix : ndarray[(num_assets, num_assets), dtype=np.double]
-        Covariance matrix between all assets. If some assets contain missing
+        Quadratic utility matrix between all assets. If some assets contain missing
         data and they should be excluded from the tracker portfolio, they
         will have a -1 a the corresponding diagonal elements and 0's in their
         corresponding rows and columns.
     assets_to_benchmark_utility_vector : ndarray[(num_assets,), dtype=np.double]
-        Covariance vector between the index and assets' returns. If some assets
+        Quadratic utility vector between the index and assets' returns. If some assets
         contain missing data and they should be excluded from the tracker
         portfolio, they will have a 0 in their corresponding elements.
     portfolio_size : int
         Number of allowed nonzero weigths in the solution portfolio.
     asset_names : ndarray[(num_assets,), dtype=str]
-        List with the ticker names of the assets of the covariance matrix. It is
+        List with the ticker names of the assets of the assets utility matrix. It is
         assumed that this list coincides with the tickers of the
         assets_to_benchmark_utility_vector and of the r matrix if it is given.
     minimum_weight : float, default=0.0
@@ -149,12 +147,6 @@ def solve_index_tracking(
         from the sector weight in the index.
     random_number_generator_seed : int, optional, default=123321
         Random number generator seed for Monte Carlo
-    options : dict, default={}
-        Dictionary of optimization hyperparameters. Accepted keys:
-        copies : int, default=100
-            Number of configurations in the algorithm.
-        n_jobs : int, default=1
-            Number of jobs to solve in parallel.
     description : str, optional, default=""
         Small descriptive name for this computation.
 
@@ -163,30 +155,26 @@ def solve_index_tracking(
     w_opt : ndarray[(num_assets,), dtype=np.double]
         Optimal solution vector.
 
-    info : int
-        Error code. Valid codes:
-        0 : No errors encountered.
-        1 : The input arguments to index tracking are invalid.
-        2 : The index tracking problem is infeasible.
-        3 : The index tracking computation failed.
+    status : str, {"Ok", "Failed"}
+        Status of the computation. 
+
+    error_description : str
+        Detailed description of the error that happened, if any.
 
     """
-    if "copies" not in options:
-        options["copies"] = 30
-    if "n_jobs" not in options:
-        options["n_jobs"] = 1
 
-    # Initialize info variable as if no error has been encountered.
-    info = 0
-    # Placeholders if computation fails.
-    optimal_portfolio = {}
+    # Initial error codes.
+    status = "Ok"
+    error_description = None
+    # Placeholder if computation fails.
+    optimal_portfolio = {"No assets": -1.0}
 
     # Array and input arguments validation.
     try:
         MAX_ARRAY_DIM = 2048
 
         num_assets = assets_utility_matrix.shape[0]
-        # Do a check of the covariances without the semidefinite positive check,
+        # Do a check of the utility matrix without the semidefinite positive check,
         # because missing data makes it non semidefinite positive.
         validate.validate_matrix(
             assets_utility_matrix, "assets_utility_matrix",
@@ -199,13 +187,13 @@ def solve_index_tracking(
             assets_to_benchmark_utility_vector, "assets_to_benchmark_utility_vector",
             num_assets,
             b_size_of_a_must_be_eq_to_max_size=True,
-            name_of_variable_with_equivalent_size=f"the dimensions of the assets covariance matrix"
+            name_of_variable_with_equivalent_size=f"the dimensions of the assets utility matrix"
         )
         asset_names = validate.validate_vector(
             asset_names, "asset_names",
             num_assets,
             b_size_of_a_must_be_eq_to_max_size=True,
-            name_of_variable_with_equivalent_size=f"the dimensions of the assets covariance matrix"
+            name_of_variable_with_equivalent_size=f"the dimensions of the assets utility matrix"
         )
 
         # Remove assets with missing data. These are the ones that have -1 in the
@@ -232,7 +220,7 @@ def solve_index_tracking(
             linear_constraints_matrix = validate.validate_matrix(linear_constraints_matrix, "linear_constraints_matrix", MAX_ARRAY_DIM, MAX_ARRAY_DIM)
             number_of_linear_inequalities = linear_constraints_matrix.shape[0]
             if linear_constraints_matrix.shape[1] != num_assets:
-                raise ValueError(f"The linear inequalities in the matrix linear_constraints_matrix, linear_constraints_matrix.shape[1]={linear_constraints_matrix.shape[1]}, do not have the same size as the dimensions of the assets covariance matrix.")
+                raise ValueError(f"The linear inequalities in the matrix linear_constraints_matrix, linear_constraints_matrix.shape[1]={linear_constraints_matrix.shape[1]}, do not have the same size as the dimensions of the assets utility matrix.")
 
             lower_bounds_vector = validate.validate_vector(
                 lower_bounds_vector, "lower_bounds_vector",
@@ -246,47 +234,58 @@ def solve_index_tracking(
                 b_size_of_a_must_be_eq_to_max_size=True,
                 name_of_variable_with_equivalent_size="the number of linear inequalities"
             )
-    except ValueError:
-        info = 1
-        return optimal_portfolio, info
+    except Exception as error_description:
+        status = "Failed"
+        error_description = "Validation: " + repr(error_description)
+        return optimal_portfolio, status, error_description
 
-    validate.dictionary(options)
+    if portfolio_size <= 0 or portfolio_size >= num_assets_without_missing_data:
+        status = "Failed"
+        error_description = f"Feasibility: Portfolio_size={portfolio_size} is not valid. It must be in the range: 0 < portfolio_size < {num_assets_without_missing_data}, with {num_assets_without_missing_data} the number of assets in the utility matrix without missing data."
+        return optimal_portfolio, status, error_description
 
-    json_args={
-        "assets_utility_matrix": assets_utility_matrix.tolist(),
-        "assets_to_benchmark_utility_vector": assets_to_benchmark_utility_vector.tolist(),
-        "portfolio_size": validate.integer(portfolio_size, 1, num_assets-1),
-        "asset_names": asset_names.tolist(),
-        "minimum_weight": validate.real(minimum_weight),
-        "maximum_weight": validate.real(maximum_weight),
-        "sum_of_portfolio_weights": validate.real(sum_of_portfolio_weights),
-        "options": options,
-        "random_number_generator_seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
-        "description": validate.string(description)
-    }
+    try:
 
-    if b_there_are_linear_inequalities:
-        json_args |= { "linear_constraints_matrix": linear_constraints_matrix.tolist() }
-        json_args |= { "lower_bounds_vector": lower_bounds_vector.tolist() }
-        json_args |= { "upper_bounds_vector": upper_bounds_vector.tolist() }
+        json_args={
+            "assets_utility_matrix": assets_utility_matrix.tolist(),
+            "assets_to_benchmark_utility_vector": assets_to_benchmark_utility_vector.tolist(),
+            "portfolio_size": validate.integer(portfolio_size, 1, num_assets-1),
+            "asset_names": asset_names.tolist(),
+            "minimum_weight": validate.real(minimum_weight),
+            "maximum_weight": validate.real(maximum_weight),
+            "sum_of_portfolio_weights": validate.real(sum_of_portfolio_weights),
+            "random_number_generator_seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
+            "description": validate.string(description)
+        }
 
-    if previous_portfolio is not None:
-        validate.dictionary(previous_portfolio)
-        json_args |= { "previous_portfolio": previous_portfolio}
-        json_args |= { "max_companies_rotation": validate.integer(max_companies_rotation, -1, np.inf)}
-        json_args |= { "max_sales_rotation": validate.real(max_sales_rotation) }
+        if b_there_are_linear_inequalities:
+            json_args |= { "linear_constraints_matrix": linear_constraints_matrix.tolist() }
+            json_args |= { "lower_bounds_vector": lower_bounds_vector.tolist() }
+            json_args |= { "upper_bounds_vector": upper_bounds_vector.tolist() }
 
-    if sectorial_distribution is not None:
-        if sectorial_weight_tolerance is None or sectorial_weights is None:
-            raise ValueError("The parameter 'sectorial_distribution' was introduced, but either 'sectorial_weight_tolerance' and/or 'sectorial_weights' are None.")
-        validate.dictionary(sectorial_distribution)
-        validate.dictionary(sectorial_weights)
-        json_args |= { "sectorial_distribution": sectorial_distribution }
-        json_args |= { "sectorial_weights": sectorial_weights }
-        json_args |= { "sectorial_weight_tolerance": validate.real(sectorial_weight_tolerance) }
+        if previous_portfolio is not None:
+            validate.dictionary(previous_portfolio)
+            json_args |= { "previous_portfolio": previous_portfolio}
+            json_args |= { "max_companies_rotation": validate.integer(max_companies_rotation, -1, np.inf)}
+            json_args |= { "max_sales_rotation": validate.real(max_sales_rotation) }
+
+        if sectorial_distribution is not None:
+            if sectorial_weight_tolerance is None or sectorial_weights is None:
+                raise ValueError("The parameter 'sectorial_distribution' was introduced, but either 'sectorial_weight_tolerance' and/or 'sectorial_weights' are None.")
+            validate.dictionary(sectorial_distribution)
+            validate.dictionary(sectorial_weights)
+            json_args |= { "sectorial_distribution": sectorial_distribution }
+            json_args |= { "sectorial_weights": sectorial_weights }
+            json_args |= { "sectorial_weight_tolerance": validate.real(sectorial_weight_tolerance) }
+    except Exception as error:
+        status = "Failed"
+        error_description = "Validation: ", repr(error)
+        return optimal_portfolio, status, error_description
 
     r_post = iqrestapi.post(
         "v1/iq-finance/index-tracking",
         json= json_args,
     )
-    return r_post["named_solution"], r_post["info"]
+    if "error_description" in r_post:
+        error_description = r_post["error_description"]
+    return r_post["named_solution"], r_post["status"], error_description
