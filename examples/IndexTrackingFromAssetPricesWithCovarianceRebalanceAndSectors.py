@@ -36,7 +36,7 @@ def read_csv_as_dict(file_path: str, no_header: bool) -> dict:
         df = pd.read_csv(file_path, index_col=0, header=None)
     else:
         df = pd.read_csv(file_path, index_col=0)
-    return df.to_dict()[df.columns[0]]
+    return df.squeeze().to_dict()
 
 # Load required data
 assets_index_prices = read_from_csv("data/asset_prices.csv")
