@@ -87,7 +87,7 @@ Here is how you can use the SDK to perform index tracking computations:
 ```python
 import numpy as np
 import iq.api.iqrestapi
-from iq.finance.index_tracking import solve_index_tracking
+import iq.finance.index_tracking
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
@@ -106,7 +106,7 @@ asset_names = ["a", "b", "c", "d", "e"]
 random_number_generator_seed = 359133650
 
 def solve_portfolio():
-    portfolio, info = solve_index_tracking(
+    portfolio, info = iq.finance.index_tracking.solve_index_tracking(
         description="Index Tracking Example",
         assets_utility_matrix=assets_utility_matrix,
         assets_to_benchmark_utility_vector=assets_to_benchmark_utility_vector,
