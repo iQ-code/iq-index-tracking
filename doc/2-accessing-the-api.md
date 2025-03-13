@@ -91,7 +91,7 @@ In the `api` folder, we provide a **Postman collection** named **`Inspiration-Q_
 - **API key** for Inspiration-Q.
 
 ### Python Script
-The script is available in `IndexTrackingNoSDK.py` inside the [Examples Folder](../examples/).
+The script is available in [index_tracking_no_sdk.py](../examples/index_tracking_no_sdk.py) inside the [Examples Folder](../examples/).
 
 ```python
 import requests

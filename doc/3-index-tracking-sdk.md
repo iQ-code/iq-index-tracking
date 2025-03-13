@@ -126,5 +126,5 @@ solve_portfolio()
 
 This script initializes the SDK, sets up input data, and calls `solve_index_tracking` to compute the optimal portfolio weights.
 
-You can find more examples in the [Examples Folder](../examples/). The specific example shown here is in [IndexTrackingSDK.py](../examples/IndexTrackingSDK.py).
+You can find more examples in the [Examples Folder](../examples/). The specific example shown here is in [index_tracking_sdk.py](../examples/index_tracking_sdk.py).
 

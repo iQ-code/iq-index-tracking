@@ -1,6 +1,6 @@
 import numpy as np
 import iq.api.iqrestapi
-from iq.finance.index_tracking import solve_index_tracking
+import iq.finance.index_tracking
 
 iq.api.iqrestapi.initialize_credentials("YOUR_API_KEY")
 
@@ -24,7 +24,7 @@ asset_names = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 random_number_generator_seed = 359133650
 
 def solve_portfolio():
-    portfolio, status, error_description = solve_index_tracking(
+    portfolio, status, error_description = iq.finance.index_tracking.solve_index_tracking(
         description="Index Tracking Example",
         assets_utility_matrix=assets_utility_matrix,
         assets_to_benchmark_utility_vector=assets_to_benchmark_utility_vector,

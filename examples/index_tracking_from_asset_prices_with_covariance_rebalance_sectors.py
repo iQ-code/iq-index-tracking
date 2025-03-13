@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 
 import iq.api.iqrestapi
-from iq.tools.quadratic_utility import compute_covariance_matrix
-from iq.finance.index_tracking import solve_index_tracking
 
 # Initialize API credentials
 iq.api.iqrestapi.initialize_credentials("<your-api-key>")
@@ -55,7 +53,7 @@ date_from = "2022-06-30"
 date_to = "2024-07-18"
 
 # Compute the covariance matrix
-cov_matrix, cov_vector, tickers = compute_covariance_matrix(
+cov_matrix, cov_vector, tickers = iq.tools.quadratic_utility.compute_covariance_matrix(
     assets_index_prices=assets_index_prices,
     benchmark_column="IXIC Index",
     date_from=date_from,
@@ -76,7 +74,7 @@ print("\nTickers:")
 print(tickers)
 
 # Solve for the optimal portfolio allocation
-portfolio, status, error_description = solve_index_tracking(
+portfolio, status, error_description = iq.finance.index_tracking.solve_index_tracking(
     description="Index Tracking Example",
     assets_utility_matrix=cov_matrix,
     assets_to_benchmark_utility_vector=cov_vector,
