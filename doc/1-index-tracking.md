@@ -25,7 +25,7 @@ where:
 The Tracking Error (TE) of a tracker portfolio with respect to a benchmark index is defined as the standard deviation of the difference between the returns of the index $r_I(t)$ and of the portfolio $r_p(t)$ during some time window $\Delta T$:
 
 $$
-\textrm{TE} = \textrm{Std}\left[ r_I(t) - r_p(t) \right]_{t \in \Delta T} = \sqrt{\textrm{Var}\left[ r_I(t) - r_p(t) \right]_{t \in \Delta T}}
+\textrm{TE} = \textrm{Std}\left[ r_I(t) - r_p(t) \right]_{t \in \Delta T} = \sqrt {\textrm{Var}\left[ r_I(t) - r_p(t) \right]_{t \in \Delta T}}
 $$
 
 $$
