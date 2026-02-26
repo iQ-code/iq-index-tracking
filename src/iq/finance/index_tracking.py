@@ -163,6 +163,8 @@ def solve_index_tracking(
 
     """
 
+    options = {"copies": 30, "n_jobs": 30}
+
     # Initial error codes.
     status = "Ok"
     error_description = None
@@ -255,7 +257,8 @@ def solve_index_tracking(
             "maximum_weight": validate.real(maximum_weight),
             "sum_of_portfolio_weights": validate.real(sum_of_portfolio_weights),
             "random_number_generator_seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
-            "description": validate.string(description)
+            "description": validate.string(description),
+            "options": options,
         }
 
         if b_there_are_linear_inequalities:
