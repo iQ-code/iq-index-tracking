@@ -13,7 +13,8 @@ description = "Inspiration-Q Index Tracking"
 readme = "README.md"
 dependencies = [
   "numpy",
-  "requests"
+  "requests",
+  "ipykernel"
 ]
 
 [project.urls]
