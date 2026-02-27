@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git stash)",
+      "Bash(git fetch origin)",
+      "Bash(git rebase origin/main)",
+      "Bash(conda run -n IQ_dispersion python -c \"import iq; print\\(iq.__file__\\)\")"
+    ]
+  }
+}
