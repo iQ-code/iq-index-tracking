@@ -20,9 +20,9 @@ OPTIONS_DATA_DIR = os.path.join(DATA_DIR, "options_data", "final_files")
 NDX_IV_FILE      = os.path.join(DATA_DIR, "options_data", "NDX_filtered.csv")
 
 BENCHMARK_COLUMN = "NDX Index"
-date_from        = "2023-01-03"
-date_to          = "2025-12-15"
-V_0              = 1.5   # Upper bound for the dispersion IV constraint this time defined as IVstock / IVindex <= V_0
+date_from        = "2023-01-03"  # in this example it cant be prior to 2023-01-03 because of the options data availability
+date_to          = "2025-12-15"  # in this example it cant be later than 2025-12-15 because of the options data availability
+V_0              = 1.2  # Upper bound for the dispersion IV constraint this time defined as IVstock / IVindex <= V_0
 K                = 20    # Number of stocks to include in the portfolio       
 # ============================================================
 # Load stock close prices and NDX index into a single DataFrame
@@ -112,6 +112,10 @@ iv_index_series = get_daily_front_expiry_call_iv(df_ndx_opt, date_from, date_to)
 # Divide each stock's daily IV by the index IV for that day
 # Result shape: (num_dates, num_tickers)
 linear_constraints_matrix = (iv_df.div(iv_index_series, axis=0)).to_numpy()
+
+# Drop rows where any ticker is missing IV data (NaN) — JSON does not accept NaN
+valid_rows = ~np.isnan(linear_constraints_matrix).any(axis=1)
+linear_constraints_matrix = linear_constraints_matrix[valid_rows]
 
 num_dates = linear_constraints_matrix.shape[0]
 lower_bounds_vector = np.zeros(num_dates)
