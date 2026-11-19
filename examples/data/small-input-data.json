@@ -18,10 +18,10 @@
     "minimum_weight": "0.0",
     "maximum_weight": "1.0",
     "options": {
-      "copies": 100,
-      "n_jobs": 1
+      "num_states": 100,
+      "num_threads": 1
     },
-    "randomNumberGenerator": "2586178580",
+    "seed": "2586178580",
     "previous_portfolio": {
       "a": 0.2035808582087152,
       "b": 0.12243012835786732,

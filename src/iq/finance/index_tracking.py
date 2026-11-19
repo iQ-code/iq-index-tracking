@@ -163,7 +163,7 @@ def solve_index_tracking(
 
     """
 
-    options = {"copies": 30, "n_jobs": 30}
+    options = {"num_states": 30, "num_threads": 30}
 
     # Initial error codes.
     status = "Ok"
@@ -256,7 +256,7 @@ def solve_index_tracking(
             "minimum_weight": validate.real(minimum_weight),
             "maximum_weight": validate.real(maximum_weight),
             "sum_of_portfolio_weights": validate.real(sum_of_portfolio_weights),
-            "random_number_generator_seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
+            "seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
             "description": validate.string(description),
             "options": options,
         }

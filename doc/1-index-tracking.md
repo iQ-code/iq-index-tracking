@@ -177,7 +177,8 @@ The API constructs an optimized portfolio that tracks a benchmark index while ad
 | `sectorial_distribution` | object (optional) | Asset-to-sector mapping. |
 | `sectorial_weight_tolerance` | number (optional) | Allowed deviation from sector weight constraints. |
 | `sum_of_portfolio_weights` | number (optional) | Expected total weight of portfolio assets. |
-| `random_number_generator_seed` | integer (optional) | Seed for the random number generator. |
+| `seed` | integer (optional) | Seed for the random number generator, an unsigned 32-bit integer (default: `0`). It is a field of the request, not an option. |
+| `options` | object (optional) | Hyperparameters of the solver, for example `num_states` (number of states of the population, default: `30`) and `num_threads` (default: `1`). The other options are listed in the API definition (`api/iq-index-tracking.yaml`). An option that does not exist is answered with `400`. |
 
 ### Output Parameters: `ComputationResult`
 

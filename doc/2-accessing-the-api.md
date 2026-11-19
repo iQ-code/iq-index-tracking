@@ -122,7 +122,7 @@ payload = {
     "assets_to_benchmark_utility_vector": [0.0518, -0.3357, 0.3207, 0.4175, 0.3314, -0.1354, -0.4340, 0.2906, 0.1588, -0.4411],
     "portfolio_size": 8,
     "asset_names": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
-    "random_number_generator_seed": 359133650,
+    "seed": 359133650,
     "description": "Index Tracking from a python example, no SDK used"
 }
 
