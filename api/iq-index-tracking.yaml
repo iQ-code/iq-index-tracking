@@ -47,9 +47,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ComputationResult'
         '400':
-          description: Invalid input
+          description: Invalid input, including a top-level field the request does not have ("Unknown fields"; hyperparameters go inside `options`), an option the algorithm does not have, or a value it cannot take. The problem names the fields or options in `keys`.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/OptionsProblem'
         '422':
           description: Validation exception
+        '503':
+          description: The service cannot read its configuration right now; the computation was not started. Try again later.
 
   /iq-finance/index-tracking/{indexTrackingComputationId}:
     get:
@@ -149,22 +155,176 @@ components:
           items:
             type: number
           description: Optional. Weights that corresponds to the solution.
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Only in the answer to a new computation. One entry per option sent that the implementation running the computation does not use, and therefore ignored.
+          example: ["Option 'num_threads' is ignored: the C++ implementation of /qubo_pa does not use it."]
+
+    OptionsProblem:
+      type: object
+      description: Problem answered when the fields or options of a new computation are rejected.
+      properties:
+        title:
+          type: string
+          example: Unknown options
+        status:
+          type: integer
+          example: 400
+        detail:
+          type: string
+          example: "/qubo_pa has no options 'shots', 'betaSteps'."
+        keys:
+          type: array
+          items:
+            type: string
+          description: The fields or options at fault.
+          example: ["shots", "betaSteps"]
+
+    Seed:
+      type: integer
+      format: int64
+      minimum: 0
+      maximum: 4294967295
+      default: 0
+      description: "Seed of the random number generator, an unsigned 32-bit integer. It is a field of the request, not an option: a `seed` inside `options` is answered 400. Two runs with the same seed, problem and options give the same result. If omitted, 0 is used. The brute-force algorithms (`bf`) do not use a seed: one sent to them is ignored and reported in `warnings`."
+      example: 12345
+
+    Options:
+      type: object
+      additionalProperties: false
+      description: |
+        Hyperparameters of the algorithms, sent flat in the `options` object of a request. There is
+        one set of names for every algorithm; the `options` description of each request says which
+        ones its algorithms accept and their defaults. An option the algorithm does not accept, or a
+        value it cannot take, is answered 400. An option that the implementation running the
+        computation does not read (C++ or Python, set per organization) is accepted, ignored and
+        reported in the `warnings` of the response. Options left out take the defaults.
+
+        The seed of the random number generator is not an option: it is the `seed` field of the
+        request.
+      properties:
+        num_threads:
+          type: integer
+          format: int32
+          minimum: 0
+          description: "Number of threads. 0 lets the solver use every core."
+        max_duration_seconds:
+          type: number
+          minimum: 0
+          description: "Time limit in seconds. 0 means no limit."
+        num_states:
+          type: integer
+          format: int32
+          minimum: 0
+          description: "Number of states: the configurations of the population in population annealing, the independent chains in simulated annealing, or the bit strings sampled in QUBO `cont`. At least 1, except in QUBO `cont`, where 0 returns the rounded relaxed solution instead of sampling."
+        num_temperature_steps:
+          type: integer
+          format: int32
+          minimum: 1
+          nullable: true
+          description: "Number of temperature steps. In QUBO and QBO `sa` and `ca`, each one is a sweep, and null calibrates it from the size of the problem."
+        epsilon:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "Controls how much the inverse temperature changes at each step."
+        num_mcmc_sweeps:
+          type: integer
+          format: int32
+          minimum: 1
+          description: "Number of Monte Carlo sweeps at each temperature."
+        initial_uphill_acceptance_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+          exclusiveMaximum: true
+          description: "Fraction of uphill moves accepted at the first temperature. 0 derives the first temperature from the spread of the initial costs."
+        loss_std_tolerance:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "Stops early once the standard deviation of the costs in the population falls below this value."
+        num_best_states:
+          type: integer
+          format: int32
+          minimum: 1
+          description: "Number of best states kept."
+        admm_rho:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          nullable: true
+          description: "ADMM penalty parameter. Leave it out (or null) to search the best one over a grid."
+        admm_max_steps:
+          type: integer
+          format: int32
+          minimum: 1
+          description: "Maximum number of ADMM iterations."
+        admm_eps:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "Primal and dual residual convergence tolerance."
+        admm_eps_pinf:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "Primal infeasibility detection tolerance."
+        admm_eps_bad_solution:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "Tolerance above which a solution is rejected (Python implementation)."
+        admm_alpha:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "ADMM relaxation parameter (Python implementation)."
+        admm_sigma:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          description: "ADMM regularization of the linear system (Python implementation)."
+        admm_scaling:
+          type: string
+          enum: [none, ruiz]
+          description: "Scaling of the problem before ADMM: none, or Ruiz equilibration (C++ implementation)."
+        admm_rho_grid_min_exp:
+          type: number
+          description: "Smallest rho of the grid search, as a power of 10 (C++ implementation)."
+        admm_rho_grid_max_exp:
+          type: number
+          description: "Largest rho of the grid search, as a power of 10 (C++ implementation)."
+        admm_rho_grid_num:
+          type: integer
+          format: int32
+          minimum: 1
+          description: "Number of rho values of the grid search (C++ implementation)."
+        admm_convergence_check_interval:
+          type: integer
+          format: int32
+          minimum: 1
+          description: "ADMM iterations between convergence checks (C++ implementation)."
 
     IndexTracking:
       required:
         - assets_utility_matrix
         - assets_to_benchmark_utility_vector
         - portfolio_size
-        - asset_names
       type: object
       properties:
         description:
           type: string
           description: A brief description of the portfolio that will be obtained.
           example: SP500 tracker, size=60
+        comment:
+          type: string
+          description: A free comment stored with the computation.
         assets_utility_matrix:
           type: array
-          description: The quadratic utility matrix of the assets in the look back window. For example, it could be a covariance matrix or a quadratic distance matrix.
+          description: The quadratic utility matrix of the assets in the look back window.
           items:
             type: array
             items:
@@ -172,7 +332,7 @@ components:
           example: [ [1.23, 2.13], [3.13, 4.09] ]
         assets_to_benchmark_utility_vector:
           type: array
-          description: The quadratic utility vector between the assets and the benchmark in the look back window. For example, it could be a covariance matrix or a quadratic distance matrix.
+          description: The quadratic utility vector between the assets and the benchmark in the look back window.
           items:
             type: number
           example: [1.31, 33.541]
@@ -250,8 +410,11 @@ components:
           description: The expected sum of the output weights. Example, if the portfolio weights should sum up to 85%, then this parameter should be 0.85.
           type: number
           example: 1.0
-        random_number_generator_seed:
-          type: integer
-          description: Seed for the random number generator. Must be an integer greater or equal than 0.
-          format: int32
-          example: 1334
+        seed:
+          $ref: '#/components/schemas/Seed'
+        options:
+          description: |
+            Hyperparameters. Which options each algorithm accepts, with their defaults:
+            - index tracking: `num_threads` (1), `max_duration_seconds` (0; C++ only), `num_states` (30), `num_temperature_steps` (100), `epsilon` (0.1), `num_mcmc_sweeps` (5), `initial_uphill_acceptance_rate` (0; C++ only), `loss_std_tolerance` (1e-4; C++ only), `num_best_states` (1; C++ only), `admm_rho` (solver's own), `admm_max_steps` (1000), `admm_eps` (1e-5), `admm_eps_pinf` (1e-7), `admm_eps_bad_solution` (1e-5; Python only), `admm_alpha` (1.6; Python only), `admm_sigma` (1e-7; Python only), `admm_scaling` ("none"; C++ only), `admm_rho_grid_min_exp` (-3; C++ only), `admm_rho_grid_max_exp` (3; C++ only), `admm_rho_grid_num` (31; C++ only), `admm_convergence_check_interval` (10; C++ only).
+          allOf:
+            - $ref: '#/components/schemas/Options'

@@ -52,7 +52,7 @@ def solve_index_tracking(
     sectorial_distribution=None,
     sectorial_weight_tolerance=None,
     sum_of_portfolio_weights=1.0,
-    random_number_generator_seed=123321,
+    random_number_generator_seed=0,
     description=""
 ):
     """Solve the index tracking (IT) problem using population annealing.
@@ -145,7 +145,7 @@ def solve_index_tracking(
     sectorial_weight_tolerance : float, optional, default=None
         Maximum relative weight deviation of the sector weight in the portfolio
         from the sector weight in the index.
-    random_number_generator_seed : int, optional, default=123321
+    random_number_generator_seed : int, optional, default=0
         Random number generator seed for Monte Carlo
     description : str, optional, default=""
         Small descriptive name for this computation.
@@ -163,7 +163,7 @@ def solve_index_tracking(
 
     """
 
-    options = {"copies": 30, "n_jobs": 30}
+    options = {"num_states": 30, "num_threads": 30}
 
     # Initial error codes.
     status = "Ok"
@@ -256,7 +256,7 @@ def solve_index_tracking(
             "minimum_weight": validate.real(minimum_weight),
             "maximum_weight": validate.real(maximum_weight),
             "sum_of_portfolio_weights": validate.real(sum_of_portfolio_weights),
-            "random_number_generator_seed": validate.integer(random_number_generator_seed, 0, 0xfffffff),
+            "seed": validate.integer(random_number_generator_seed, 0, 0xffffffff),
             "description": validate.string(description),
             "options": options,
         }
